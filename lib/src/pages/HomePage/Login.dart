@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'HomePage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -80,7 +81,10 @@ class LoginTab extends StatelessWidget {
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () {
-              // Acción de logeo
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
