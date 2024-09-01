@@ -34,7 +34,7 @@ class HomePage extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.book), text: 'Libros'),
-              Tab(icon: Icon(Icons.star), text: 'Favoritos'),
+              Tab(icon: Icon(Icons.star), text: 'Cursos'),
             ],
           ),
         ),
