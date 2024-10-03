@@ -35,9 +35,6 @@ class _LibrosPageState extends State<LibrosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('LIBROS DISPONIBLES!'),
-      ),
       body: libros.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(

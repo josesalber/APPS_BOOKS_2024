@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart';
+import 'package:flutter_application_1/src/pages/HomePage/tabs/libros.dart';
+
 import 'tabs/cursos.dart';
 import 'tabs/libros.dart';
 
@@ -14,7 +17,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'APPrendiendo',
       theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: Colors.red,
+        fontFamily: 'SFPRODISPLAY',
       ),
       home: const HomePage(),
     );
@@ -31,18 +35,36 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('APPrendiendo'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.book), text: 'Libros'),
-              Tab(icon: Icon(Icons.star), text: 'Cursos'),
-            ],
-          ),
         ),
         body: const TabBarView(
           children: [
             LibrosPage(), // Contenido de la pestaña "Libros"
-            FavoritosPage(), // Contenido de la pestaña "Favoritos"
+            FreeCoursesPage(), // Contenido de la pestaña "Cursos"
           ],
+        ),
+        bottomNavigationBar: PreferredSize(
+          preferredSize: const Size.fromHeight(50.0), // Altura del TabBar
+          child: Container(
+            color: Theme.of(context).primaryColor,
+            child: TabBar(
+              tabs: const [
+                Tab(
+                  icon: Icon(Icons.book, size: 18),
+                ), // Icono más pequeño
+                Tab(
+                  icon: Icon(Icons.star, size: 18),
+                ), // Icono más pequeño
+              ],
+              labelColor: Colors.white, // Color del texto seleccionado
+              unselectedLabelColor:
+                  Colors.white54, // Color del texto no seleccionado
+              indicator: BoxDecoration(
+                color: const Color.fromARGB(
+                    255, 42, 149, 236), // Color del indicador
+                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+              ),
+            ),
+          ),
         ),
       ),
     );
