@@ -124,7 +124,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
                 ),
                 const SizedBox(height: 10),
                 TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Buscar cursos...',
                     border: OutlineInputBorder(),
                     suffixIcon: Icon(Icons.search),
