@@ -8,10 +8,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'APP 2024',
-      home: HomePage(),
+      title: 'APPRENDE+',
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFF1C1C2D), // Fondo de pantalla muy oscuro
+        primaryColor: const Color(0xFF1C1C2D), // Color primario
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1C1C2D), // Fondo de AppBar muy oscuro
+        ),
+
+      ),
+      home: const HomePage(),
     );
   }
 }

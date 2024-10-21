@@ -1,29 +1,9 @@
+// lib/src/pages/HomePage/HomePage.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/libros.dart';
-
-import 'tabs/cursos.dart';
-import 'tabs/libros.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'APPrendiendo',
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-        fontFamily: 'SFPRODISPLAY',
-      ),
-      home: const HomePage(),
-    );
-  }
-}
+import 'package:flutter_application_1/src/pages/HomePage/tabs/Principal.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/CustomAppBar.dart'; 
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -31,38 +11,45 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // Número de pestañas
+      length: 3, 
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('APPrendiendo'),
-        ),
+        appBar: const CustomAppBar(), 
         body: const TabBarView(
           children: [
+            Principal(), // el home xd
             LibrosPage(), // Contenido de la pestaña "Libros"
             FreeCoursesPage(), // Contenido de la pestaña "Cursos"
           ],
         ),
         bottomNavigationBar: PreferredSize(
-          preferredSize: const Size.fromHeight(50.0), // Altura del TabBar
+          preferredSize: const Size.fromHeight(60.0), 
           child: Container(
-            color: Theme.of(context).primaryColor,
+            color: const Color(0xFF2f2c44), // Color del navbar
             child: TabBar(
               tabs: const [
                 Tab(
-                  icon: Icon(Icons.book, size: 18),
-                ), // Icono más pequeño
+                  icon: Icon(Icons.home, size: 24), 
+                ),
                 Tab(
-                  icon: Icon(Icons.star, size: 18),
-                ), // Icono más pequeño
+                  icon: Icon(Icons.book, size: 24), 
+                ),
+                Tab(
+                  icon: Icon(Icons.new_releases, size: 24), 
+                )
               ],
-              labelColor: Colors.white, // Color del texto seleccionado
-              unselectedLabelColor:
-                  Colors.white54, // Color del texto no seleccionado
+              labelColor: Colors.white, 
+              unselectedLabelColor: Colors.white54, 
               indicator: BoxDecoration(
-                color: const Color.fromARGB(
-                    255, 42, 149, 236), // Color del indicador
-                borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                color: const Color(0xFF1c1a29), 
+                borderRadius: BorderRadius.circular(10), 
+                border: Border.all(
+                  color: const Color(0xFF1c1a29), 
+                  width: 2.0, 
+                ),
               ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+              indicatorWeight: 4.0,
             ),
           ),
         ),
