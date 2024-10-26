@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/CustomAppBar.dart';
-import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart'; // Importa FreeCoursesPage
-import 'package:flutter_application_1/src/pages/HomePage/tabs/Libros.dart'; // Importa LibrosPage
+import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart'; 
+import 'package:flutter_application_1/src/pages/HomePage/tabs/Libros.dart'; 
+import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; 
 
 class Principal extends StatefulWidget {
   const Principal({Key? key}) : super(key: key);

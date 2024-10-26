@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; 
+
 
 class LibrosPage extends StatefulWidget {
   const LibrosPage({super.key});
@@ -99,25 +101,17 @@ class _LibrosPageState extends State<LibrosPage> {
                             children: [
                               Text(
                                 title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyles.title,
                               ),
                               const SizedBox(height: 8.0),
                               Text(
                                 'Autor: $authors',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                ),
+                                style: TextStyles.bodyText,
                               ),
                               const SizedBox(height: 8.0),
                               Text(
                                 'Publicado: $publishedDate',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                ),
+                                style: TextStyles.bodyText,
                               ),
                             ],
                           ),
@@ -175,31 +169,22 @@ class DetalleLibroPage extends StatelessWidget {
             const SizedBox(height: 16.0),
             Text(
               titulo,
-              style: const TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyles.title,
             ),
             const SizedBox(height: 8.0),
             Text(
               'Autor: $autor',
-              style: const TextStyle(
-                fontSize: 18.0,
-              ),
+              style: TextStyles.subtitle,
             ),
             const SizedBox(height: 8.0),
             Text(
               'Materia: $materia',
-              style: const TextStyle(
-                fontSize: 18.0,
-              ),
+              style: TextStyles.subtitle,
             ),
             const SizedBox(height: 8.0),
             Text(
               'Año de Publicación: $anio',
-              style: const TextStyle(
-                fontSize: 18.0,
-              ),
+              style: TextStyles.subtitle,
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
@@ -218,24 +203,5 @@ class DetalleLibroPage extends StatelessWidget {
   void launchURL(String url) {
     // Puedes usar el paquete url_launcher para abrir la URL en el navegador
     // launch(url);
-  }
-}
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Libros de Flutter',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-      ),
-      home: const LibrosPage(),
-    );
   }
 }

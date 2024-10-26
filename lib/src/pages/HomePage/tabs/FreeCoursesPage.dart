@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_application_1/src/pages/HomePage/tabs/Libros.dart'; 
+import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; 
 
 class FreeCoursesPage extends StatefulWidget {
   const FreeCoursesPage({super.key});
@@ -124,10 +126,13 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
                 ),
                 const SizedBox(height: 10),
                 TextField(
-                  decoration: const InputDecoration(
+                  decoration:  InputDecoration(
                     labelText: 'Buscar cursos...',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.search),
+                    labelStyle: TextStyles.searchField,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    suffixIcon: Icon(Icons.search, color: Colors.white),
                   ),
                   onChanged: (value) {
                     searchQuery = value;
@@ -169,36 +174,22 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
                           const SizedBox(height: 10),
                           Text(
                             course['title'],
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyles.Secondtitle,
                           ),
                           const SizedBox(height: 5),
                           Text(
                             "Instructor: ${course['visible_instructors'][0]['title']}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
+                            style: TextStyles.bodyText,
                           ),
                           const SizedBox(height: 5),
                           Text(
                             "Category: ${course['category']?['title'] ?? 'Unknown'}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blueAccent,
-                            ),
+                            style: TextStyles.subtitle,
                           ),
                           const SizedBox(height: 5),
                           Text(
                             "Subcategory: ${course['subcategory']?['title'] ?? 'N/A'}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.green,
-                            ),
+                            style: TextStyles.subtitle,
                           ),
                           const SizedBox(height: 10),
                           ElevatedButton(
