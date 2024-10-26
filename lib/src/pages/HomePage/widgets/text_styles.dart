@@ -8,14 +8,12 @@ class TextStyles {
   );
 
   static final TextStyle Secondtitle = TextStyle(
-    fontSize: 24,
-    fontWeight: FontWeight.bold,
-    foreground: Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..color = Color(0xFF1c1c2e),
-    background: Paint()
-      ..color = Colors.black,
+  fontSize: 24,
+  fontWeight: FontWeight.bold,
+  foreground: Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1
+    ..color = Color(0xFF1c1c2e), 
   );
 
   static const TextStyle subtitle = TextStyle(

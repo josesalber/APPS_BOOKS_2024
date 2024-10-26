@@ -174,12 +174,15 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
                           const SizedBox(height: 10),
                           Text(
                             course['title'],
-                            style: TextStyles.Secondtitle,
+                            style: TextStyles.Secondtitle.copyWith(
+                            color: Colors.black, //
+                            ),
                           ),
                           const SizedBox(height: 5),
                           Text(
                             "Instructor: ${course['visible_instructors'][0]['title']}",
                             style: TextStyles.bodyText,
+                
                           ),
                           const SizedBox(height: 5),
                           Text(
