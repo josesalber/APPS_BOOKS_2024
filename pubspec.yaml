@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
 
   url_launcher: ^6.1.7
+  intl: ^0.17.0
+
 
 
 
@@ -45,7 +47,7 @@ dev_dependencies:
   http: 0.13.5
   
   flutter_lints: ^4.0.0
-
+  
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

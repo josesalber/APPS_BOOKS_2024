@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_application_1/src/pages/HomePage/tabs/Libros.dart'; 
-import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; 
 
 class FreeCoursesPage extends StatefulWidget {
   const FreeCoursesPage({super.key});
@@ -15,9 +14,9 @@ class FreeCoursesPage extends StatefulWidget {
 class _FreeCoursesPageState extends State<FreeCoursesPage> {
   List<dynamic> courses = [];
   List<dynamic> filteredCourses = [];
-  String selectedCategory = "All"; // Categoría seleccionada
-  List<String> categories = ["All"]; // Lista de categorías
-  String searchQuery = ""; // Query de búsqueda
+  String selectedCategory = "All";
+  List<String> categories = ["All"];
+  String searchQuery = "";
 
   @override
   void initState() {
@@ -27,34 +26,20 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
 
   Future<void> fetchCourses() async {
     final response = await http.get(
-      Uri.parse('https://www.udemy.com/api-2.0/courses/?price=price-free'),
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-        'Authorization':
-            'Basic bXNPbzROeWp1SWt1Y01zenFpU3gxaWhTYXJlWlNvQ2ptcmZucVFiWTpWSkpwdERubkpnZlo5VUliSURRUnVIUExkY0gyd0g5RDNMYWRNY0l1d0tJdWQzZVo3S2IxYXhsbzNkV1BNVWtwUGRXZVJRSmRsRlB4Y0d0R1FOMXlyNWZqV0pqUWRFOUc3SmVKMzhqb2cwa0Q1YWRqeWQ4NHNnMVN2RkptRlBEbg==',
-      },
+      Uri.parse('https://coupons.thanh0x.com/api/v1/coupons?numberPerPage=20'),
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
-        courses = data['results'];
+        courses = data['courses'];
         filteredCourses = courses;
 
-        // Asegúrate de que category no sea nulo
         categories.addAll(courses
-            .map((course) {
-              if (course['category'] != null &&
-                  course['category']['title'] != null) {
-                return course['category']['title']
-                    as String; // Asegúrate de que sea un String
-              }
-              return 'Unknown'; // Manejar caso donde no hay categoría
-            })
+            .map((course) => course['category'] ?? 'Unknown')
             .toSet()
             .cast<String>()
-            .toList()); // Convierte a Iterable<String>
+            .toList());
       });
     } else {
       throw Exception('Failed to load courses');
@@ -62,10 +47,6 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
   }
 
   Future<void> _launchUrl(String url) async {
-    if (!url.startsWith('http')) {
-      url = 'https://www.udemy.com$url'; // Agrega el dominio si es necesario
-    }
-
     final Uri courseUrl = Uri.parse(url);
     if (await canLaunchUrl(courseUrl)) {
       await launchUrl(courseUrl);
@@ -78,10 +59,8 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
     setState(() {
       filteredCourses = courses.where((course) {
         final matchesCategory = selectedCategory == "All" ||
-            (course['category'] != null &&
-                course['category']['title'] == selectedCategory);
-        final matchesSearch =
-            course['title'].toLowerCase().contains(searchQuery.toLowerCase());
+            (course['category'] != null && course['category'] == selectedCategory);
+        final matchesSearch = course['title'].toLowerCase().contains(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
       }).toList();
     });
@@ -90,8 +69,23 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
   void _filterCoursesByCategory(String category) {
     setState(() {
       selectedCategory = category;
-      _filterCourses(); // Filtrar por categoría
+      _filterCourses();
     });
+  }
+
+  String getExpiryTime(DateTime expires) {
+    final now = DateTime.now();
+    final difference = expires.difference(now);
+
+    if (difference.inDays > 0) {
+      return "Expira en: ${difference.inDays} días";
+    } else if (difference.inHours > 0) {
+      return "Expira en: ${difference.inHours} horas";
+    } else if (difference.inMinutes > 0) {
+      return "Expira en: ${difference.inMinutes} minutos";
+    } else {
+      return "Expirado";
+    }
   }
 
   @override
@@ -99,45 +93,80 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
     return Scaffold(
       appBar: AppBar(
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
+          preferredSize: const Size.fromHeight(140),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButton<String>(
-                        value: selectedCategory,
-                        isExpanded: true,
-                        items: categories.map((category) {
-                          return DropdownMenuItem(
-                            value: category,
-                            child: Text(category),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          _filterCoursesByCategory(
-                              value!); // Filtrar por categoría
-                        },
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Cursos gratuitos',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
-                  decoration:  InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Buscar cursos...',
-                    labelStyle: TextStyles.searchField,
+                    labelStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: Colors.white24,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide.none,
                     ),
                     suffixIcon: Icon(Icons.search, color: Colors.white),
                   ),
                   onChanged: (value) {
                     searchQuery = value;
-                    _filterCourses(); // Filtrar por búsqueda
+                    _filterCourses();
                   },
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF302f3c),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Filtrar por:',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFF6c61af),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: selectedCategory,
+                              isExpanded: true,
+                              items: categories.map((category) {
+                                return DropdownMenuItem(
+                                  value: category,
+                                  child: Text(
+                                    category,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                _filterCoursesByCategory(value!);
+                              },
+                              dropdownColor: Color(0xFF6c61af),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -150,6 +179,9 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
               itemCount: filteredCourses.length,
               itemBuilder: (context, index) {
                 final course = filteredCourses[index];
+                final expires = DateTime.parse(course['expiredDate']);
+                final daysLeft = getExpiryTime(expires);
+
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
@@ -157,53 +189,73 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10.0),
-                            child: Image.network(
-                              course['image_240x135'] ?? '',
-                              height: 150,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(15.0),
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            course['title'],
-                            style: TextStyles.Secondtitle.copyWith(
-                            color: Colors.black, //
-                            ),
+                          child: Image.network(
+                            course['previewImage'] ?? '',
+                            height: 120, // Reduce la altura de la imagen
+                            width: double.infinity,
+                            fit: BoxFit.cover,
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            "Instructor: ${course['visible_instructors'][0]['title']}",
-                            style: TextStyles.bodyText,
-                
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 1.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                course['title'],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                "Instructor: ${course['author']}",
+                                style: TextStyle(fontSize: 14, color: Colors.black),
+                              ),
+                              Text(
+                                "Categoría: ${course['category'] ?? 'Desconocido'}",
+                                style: TextStyle(fontSize: 14, color: Colors.black54),
+                              ),
+                              Text(
+                                "Calificación: ${course['rating']?.toStringAsFixed(1) ?? 'N/A'}",
+                                style: TextStyle(fontSize: 14, color: Colors.black54),
+                              ),
+                              Text(
+                                daysLeft,
+                                style: TextStyle(fontSize: 14, color: Colors.black54),
+                              ),
+                              const SizedBox(height: 3),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF6c61af),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    _launchUrl(course['couponUrl']);
+                                  },
+                                  child: const Text('Ver curso'),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            "Category: ${course['category']?['title'] ?? 'Unknown'}",
-                            style: TextStyles.subtitle,
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            "Subcategory: ${course['subcategory']?['title'] ?? 'N/A'}",
-                            style: TextStyles.subtitle,
-                          ),
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              _launchUrl(course[
-                                  'url']); // Llama a la función para abrir la URL del curso
-                            },
-                            child: const Text('Ver curso'),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
