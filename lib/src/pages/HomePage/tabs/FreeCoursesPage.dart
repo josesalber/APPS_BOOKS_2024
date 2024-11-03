@@ -1,8 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_application_1/services/course_service.dart';
+import 'package:flutter_application_1/model/course.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart';
 
 class FreeCoursesPage extends StatefulWidget {
   const FreeCoursesPage({super.key});
@@ -12,8 +13,9 @@ class FreeCoursesPage extends StatefulWidget {
 }
 
 class _FreeCoursesPageState extends State<FreeCoursesPage> {
-  List<dynamic> courses = [];
-  List<dynamic> filteredCourses = [];
+  final CourseService _courseService = CourseService();
+  List<Course> courses = [];
+  List<Course> filteredCourses = [];
   String selectedCategory = "All";
   List<String> categories = ["All"];
   String searchQuery = "";
@@ -25,42 +27,25 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
   }
 
   Future<void> fetchCourses() async {
-    final response = await http.get(
-      Uri.parse('https://coupons.thanh0x.com/api/v1/coupons?numberPerPage=20'),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    try {
+      final fetchedCourses = await _courseService.fetchCourses(300);
       setState(() {
-        courses = data['courses'];
+        courses = fetchedCourses.where((course) => !course.isExpired()).toList();
         filteredCourses = courses;
-
-        categories.addAll(courses
-            .map((course) => course['category'] ?? 'Unknown')
-            .toSet()
-            .cast<String>()
-            .toList());
+        categories = ["All"];
+        categories.addAll(courses.map((course) => course.category).toSet().cast<String>().toList());
+        _filterCourses();
       });
-    } else {
-      throw Exception('Failed to load courses');
-    }
-  }
-
-  Future<void> _launchUrl(String url) async {
-    final Uri courseUrl = Uri.parse(url);
-    if (await canLaunchUrl(courseUrl)) {
-      await launchUrl(courseUrl);
-    } else {
-      throw 'Could not launch $url';
+    } catch (e) {
+      throw Exception('Fallo en carga de cursos');
     }
   }
 
   void _filterCourses() {
     setState(() {
       filteredCourses = courses.where((course) {
-        final matchesCategory = selectedCategory == "All" ||
-            (course['category'] != null && course['category'] == selectedCategory);
-        final matchesSearch = course['title'].toLowerCase().contains(searchQuery.toLowerCase());
+        final matchesCategory = selectedCategory == "All" || course.category == selectedCategory;
+        final matchesSearch = course.title.toLowerCase().contains(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
       }).toList();
     });
@@ -73,194 +58,242 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
     });
   }
 
-  String getExpiryTime(DateTime expires) {
-    final now = DateTime.now();
-    final difference = expires.difference(now);
-
-    if (difference.inDays > 0) {
-      return "Expira en: ${difference.inDays} días";
-    } else if (difference.inHours > 0) {
-      return "Expira en: ${difference.inHours} horas";
-    } else if (difference.inMinutes > 0) {
-      return "Expira en: ${difference.inMinutes} minutos";
+  Future<void> _launchUrl(String url) async {
+    final Uri courseUrl = Uri.parse(url);
+    if (await canLaunchUrl(courseUrl)) {
+      await launchUrl(courseUrl);
     } else {
-      return "Expirado";
+      throw 'Could not launch $url';
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(140),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-            child: Column(
-              children: [
-                Text(
-                  'Cursos gratuitos',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+      appBar: _buildAppBar(),
+      body: RefreshIndicator(
+        onRefresh: fetchCourses,
+        child: filteredCourses.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                itemCount: filteredCourses.length,
+                itemBuilder: (context, index) {
+                  final course = filteredCourses[index];
+                  return _buildCourseCard(course);
+                },
+              ),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(140),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          child: Column(
+            children: [
+              const Text(
+                'Cursos gratuitos 9.0',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 10),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Buscar cursos...',
-                    labelStyle: TextStyle(color: Colors.white),
-                    filled: true,
-                    fillColor: Colors.white24,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    suffixIcon: Icon(Icons.search, color: Colors.white),
-                  ),
-                  onChanged: (value) {
-                    searchQuery = value;
-                    _filterCourses();
-                  },
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF302f3c),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Filtrar por:',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xFF6c61af),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: selectedCategory,
-                              isExpanded: true,
-                              items: categories.map((category) {
-                                return DropdownMenuItem(
-                                  value: category,
-                                  child: Text(
-                                    category,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                _filterCoursesByCategory(value!);
-                              },
-                              dropdownColor: Color(0xFF6c61af),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              _buildSearchField(),
+              const SizedBox(height: 10),
+              _buildCategoryFilter(),
+            ],
           ),
         ),
       ),
-      body: filteredCourses.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: filteredCourses.length,
-              itemBuilder: (context, index) {
-                final course = filteredCourses[index];
-                final expires = DateTime.parse(course['expiredDate']);
-                final daysLeft = getExpiryTime(expires);
+    );
+  }
 
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    elevation: 5,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(15.0),
-                          ),
-                          child: Image.network(
-                            course['previewImage'] ?? '',
-                            height: 120, // Reduce la altura de la imagen
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 1.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                course['title'],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                "Instructor: ${course['author']}",
-                                style: TextStyle(fontSize: 14, color: Colors.black),
-                              ),
-                              Text(
-                                "Categoría: ${course['category'] ?? 'Desconocido'}",
-                                style: TextStyle(fontSize: 14, color: Colors.black54),
-                              ),
-                              Text(
-                                "Calificación: ${course['rating']?.toStringAsFixed(1) ?? 'N/A'}",
-                                style: TextStyle(fontSize: 14, color: Colors.black54),
-                              ),
-                              Text(
-                                daysLeft,
-                                style: TextStyle(fontSize: 14, color: Colors.black54),
-                              ),
-                              const SizedBox(height: 3),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF6c61af),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    _launchUrl(course['couponUrl']);
-                                  },
-                                  child: const Text('Ver curso'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+  TextField _buildSearchField() {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: 'Buscar cursos...',
+        labelStyle: const TextStyle(color: Colors.white),
+        filled: true,
+        fillColor: Colors.white24,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: const Icon(Icons.search, color: Colors.white),
+      ),
+      onChanged: (value) {
+        searchQuery = value;
+        _filterCourses();
+      },
+    );
+  }
+
+  Container _buildCategoryFilter() {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF302f3c),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Text(
+            'Filtrar por:',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF6c61af),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: selectedCategory,
+                  isExpanded: true,
+                  items: categories.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(
+                        category,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    _filterCoursesByCategory(value!);
+                  },
+                  dropdownColor: const Color(0xFF6c61af),
+                ),
+              ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCourseCard(Course course) {
+    final daysLeft = course.getExpiryTime();
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailPage(course: course),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          elevation: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildCourseImage(course),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCourseTitle(course),
+                    const SizedBox(height: 5),
+                    _buildCourseInfoRow(course),
+                    const SizedBox(height: 5),
+                    _buildCourseAuthor(course),
+                    const SizedBox(height: 5),
+                    _buildCourseCategory(course),
+                    if (daysLeft.isNotEmpty)
+                      Text(
+                        daysLeft,
+                        style: const TextStyle(fontSize: 14, color: Colors.redAccent),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  ClipRRect _buildCourseImage(Course course) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(
+        top: Radius.circular(15.0),
+      ),
+      child: Image.network(
+        course.previewImage,
+        height: 120,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  Text _buildCourseTitle(Course course) {
+    return Text(
+      course.title,
+      style: const TextStyle(
+        fontSize: 18,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Row _buildCourseInfoRow(Course course) {
+    return Row(
+      children: [
+        Text(
+          "⭐ ${course.rating.toStringAsFixed(1)}",
+          style: const TextStyle(fontSize: 14, color: Colors.orange),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          "👤 ${course.students}",
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          "⏰ ${course.contentLength} mins",
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  Text _buildCourseAuthor(Course course) {
+    return Text(
+      "Autor: ${course.author}",
+      style: const TextStyle(fontSize: 14, color: Colors.black54),
+    );
+  }
+
+  Container _buildCourseCategory(Course course) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: course.getCategoryColor(),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Text(
+        course.category,
+        style: const TextStyle(fontSize: 14, color: Colors.white),
+      ),
     );
   }
 }
