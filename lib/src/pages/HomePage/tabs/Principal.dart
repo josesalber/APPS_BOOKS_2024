@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/CustomAppBar.dart';
-import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart'; 
-import 'package:flutter_application_1/src/pages/HomePage/tabs/Libros.dart'; 
-import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; 
+import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 
 class Principal extends StatefulWidget {
   const Principal({Key? key}) : super(key: key);
@@ -18,7 +17,6 @@ class _PrincipalState extends State<Principal> {
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentPage = 0;
   List<dynamic> latestCourses = [];
-  List<dynamic> latestBooks = [];
 
   @override
   void initState() {
@@ -32,7 +30,6 @@ class _PrincipalState extends State<Principal> {
       }
     });
     fetchLatestCourses();
-    fetchLatestBooks();
   }
 
   Future<void> fetchLatestCourses() async {
@@ -56,21 +53,6 @@ class _PrincipalState extends State<Principal> {
     }
   }
 
-  Future<void> fetchLatestBooks() async {
-    final response = await http.get(
-      Uri.parse('https://www.googleapis.com/books/v1/volumes?q=flutter'),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        latestBooks = data['items'].take(5).toList(); 
-      });
-    } else {
-      throw Exception('Error al cargar libros');
-    }
-  }
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -83,7 +65,6 @@ class _PrincipalState extends State<Principal> {
       body: RefreshIndicator(
         onRefresh: () async {
           await fetchLatestCourses();
-          await fetchLatestBooks();
         }, // Recargar la API al iniciar la aplicación
         child: ListView(
           children: [
@@ -205,112 +186,6 @@ class _PrincipalState extends State<Principal> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 16.0), // Espacio entre secciones
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Últimos libros',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LibrosPage()),
-                      );
-                    },
-                    child: const Text(
-                      'Ver todo',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 200.0,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: latestBooks.length,
-                itemBuilder: (context, index) {
-                  final book = latestBooks[index];
-                  final volumeInfo = book['volumeInfo'];
-                  final title = volumeInfo['title'];
-                  final imageUrl = volumeInfo['imageLinks']?['thumbnail'] ?? '';
-
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetalleLibroPage(
-                            imageUrl: imageUrl,
-                            titulo: title,
-                            autor: volumeInfo['authors']?.join(', ') ?? 'Desconocido',
-                            materia: 'Programación',
-                            anio: volumeInfo['publishedDate'] ?? 'Desconocido',
-                            previewLink: volumeInfo['previewLink'] ?? '',
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: 150.0,
-                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Card(
-                        color: Colors.grey[850],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16.0),
-                              child: Image.network(
-                                imageUrl,
-                                height: 200,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 16.0,
-                              left: 16.0,
-                              right: 16.0,
-                              child: Text(
-                                title,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  shadows: [
-                                    Shadow(
-                                      offset: Offset(2.0, 2.0), // Hacer el borde más grueso
-                                      blurRadius: 3.0,
-                                      color: Colors.black,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   );
