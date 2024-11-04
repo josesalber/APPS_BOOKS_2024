@@ -8,7 +8,7 @@ import 'package:flutter_application_1/src/pages/HomePage/widgets/course_info_row
 class CourseDetailPage extends StatelessWidget {
   final Course course;
 
-  const CourseDetailPage({Key? key, required this.course}) : super(key: key);
+  const CourseDetailPage({super.key, required this.course});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class CourseDetailPage extends StatelessWidget {
                           height: 200,
                           width: double.infinity,
                           color: Colors.grey,
-                          child: Center(
+                          child: const Center(
                             child: Icon(
                               Icons.error,
                               color: Colors.red,
@@ -50,7 +50,7 @@ class CourseDetailPage extends StatelessWidget {
                       top: 10,
                       right: 10,
                       child: IconButton(
-                        icon: Icon(Icons.favorite_border, color: Colors.white),
+                        icon: const Icon(Icons.favorite_border, color: Colors.white),
                         onPressed: () {
                           // Acción del botón de corazón
                         },

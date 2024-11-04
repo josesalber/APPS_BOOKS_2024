@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_application_1/services/course_service.dart';
 import 'package:flutter_application_1/model/course.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/app_styles.dart';
 
 class FreeCoursesPage extends StatefulWidget {
   const FreeCoursesPage({super.key});
@@ -91,16 +92,12 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(140),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          padding: AppStyles.searchFieldPadding,
           child: Column(
             children: [
               const Text(
                 'Cursos gratuitos 9.0',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyles.title,
               ),
               const SizedBox(height: 10),
               _buildSearchField(),
@@ -117,11 +114,11 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Buscar cursos...',
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: TextStyles.searchField,
         filled: true,
-        fillColor: Colors.white24,
+        fillColor: AppStyles.searchFieldDecoration.color,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: AppStyles.searchFieldDecoration.borderRadius as BorderRadius,
           borderSide: BorderSide.none,
         ),
         suffixIcon: const Icon(Icons.search, color: Colors.white),
@@ -136,10 +133,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
   Container _buildCategoryFilter() {
     return Container(
       padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFF302f3c),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: AppStyles.categoryFilterDecoration,
       child: Row(
         children: [
           const Text(
@@ -149,10 +143,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
           const SizedBox(width: 10),
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF6c61af),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+              decoration: AppStyles.dropdownDecoration,
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: selectedCategory,
@@ -191,7 +182,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
         );
       },
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: AppStyles.containerMargin,
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
@@ -202,7 +193,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
             children: [
               _buildCourseImage(course),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                padding: AppStyles.courseCardPadding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -230,9 +221,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
 
   ClipRRect _buildCourseImage(Course course) {
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(15.0),
-      ),
+      borderRadius: AppStyles.courseImageDecoration.borderRadius ?? BorderRadius.zero,
       child: Image.network(
         course.previewImage,
         height: 120,
@@ -286,9 +275,8 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
   Container _buildCourseCategory(Course course) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      decoration: BoxDecoration(
+      decoration: AppStyles.courseCategoryDecoration.copyWith(
         color: course.getCategoryColor(),
-        borderRadius: BorderRadius.circular(10.0),
       ),
       child: Text(
         course.category,

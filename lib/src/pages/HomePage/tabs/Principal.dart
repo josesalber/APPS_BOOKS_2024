@@ -7,7 +7,7 @@ import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.da
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 
 class Principal extends StatefulWidget {
-  const Principal({Key? key}) : super(key: key);
+  const Principal({super.key});
 
   @override
   _PrincipalState createState() => _PrincipalState();

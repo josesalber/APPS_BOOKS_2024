@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/src/pages/HomePage/Login.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({Key? key}) : super(key: key);
+  const CustomAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: const Color(0xFF1C1C2D),
-      title: Row(
+      title: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Text(
             'APP',
             style: TextStyle(

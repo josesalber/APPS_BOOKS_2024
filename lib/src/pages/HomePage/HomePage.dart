@@ -4,7 +4,6 @@ import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.da
 import 'package:flutter_application_1/src/pages/HomePage/tabs/libros.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/Principal.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/CustomAppBar.dart'; 
-import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; 
 
 
 class HomePage extends StatelessWidget {

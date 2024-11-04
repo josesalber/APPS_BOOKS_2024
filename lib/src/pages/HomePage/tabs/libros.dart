@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/app_styles.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/book_list.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/empty_state.dart';
 import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LibrosPage extends StatefulWidget {
   const LibrosPage({super.key});
@@ -20,7 +22,6 @@ class _LibrosPageState extends State<LibrosPage> {
   List<String> categories = ["Todos"];
   String searchQuery = "";
   bool isLoading = false;
-  bool isConnected = true;
 
   final List<String> topics = [
     'programación',
@@ -157,136 +158,16 @@ class _LibrosPageState extends State<LibrosPage> {
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : libros.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.search_off,
-                          color: Colors.white,
-                          size: 80,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          selectedCategory == "Todos"
-                              ? 'El libro que buscas no está disponible :('
-                              : 'El libro que buscas no se encuentra en esta categoría :(',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              selectedCategory = "Todos";
-                              _clearSearch();
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 241, 241, 243),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Borrar Filtros',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: libros.length,
-                    itemBuilder: (context, index) {
-                      final libro = libros[index];
-                      final title = libro['title'];
-                      final author = libro['author'];
-                      final imageUrl = libro['imgUrl'];
-
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetalleLibroPage(
-                                title: title,
-                                author: author,
-                                imageUrl: imageUrl,
-                                size: libro['size'],
-                                genre: libro['genre'],
-                                year: libro['year'],
-                                format: libro['format'],
-                                md5: libro['md5'],
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.all(8.0),
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[850],
-                            borderRadius: BorderRadius.circular(16.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              imageUrl.isNotEmpty
-                                  ? Image.network(
-                                      imageUrl,
-                                      height: 150,
-                                      width: 100, // Forzar un tamaño estándar
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return const Icon(Icons.error, size: 150);
-                                      },
-                                    )
-                                  : const SizedBox.shrink(),
-                              const SizedBox(width: 16.0),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      title,
-                                      style: TextStyles.title,
-                                    ),
-                                    const SizedBox(height: 8.0),
-                                    Text(
-                                      'Autor: $author',
-                                      style: TextStyles.bodyText,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.bookmark_border, color: Colors.white),
-                                onPressed: () {
-                                  // Acción para marcar como favorito
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                ? EmptyState(
+                    selectedCategory: selectedCategory,
+                    onClearFilters: () {
+                      setState(() {
+                        selectedCategory = "Todos";
+                        _clearSearch();
+                      });
                     },
-                  ),
+                  )
+                : BookList(libros: libros),
       ),
     );
   }
@@ -296,16 +177,12 @@ class _LibrosPageState extends State<LibrosPage> {
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(140),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          padding: AppStyles.searchFieldPadding,
           child: Column(
             children: [
               const Text(
                 'Libros gratuitos',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyles.title,
               ),
               const SizedBox(height: 10),
               _buildSearchField(),
@@ -323,11 +200,11 @@ class _LibrosPageState extends State<LibrosPage> {
       controller: searchController,
       decoration: InputDecoration(
         labelText: 'Buscar libros...',
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: TextStyles.searchField,
         filled: true,
-        fillColor: Colors.white24,
+        fillColor: AppStyles.searchFieldDecoration.color,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: AppStyles.searchFieldDecoration.borderRadius as BorderRadius,
           borderSide: BorderSide.none,
         ),
         suffixIcon: IconButton(
@@ -349,10 +226,7 @@ class _LibrosPageState extends State<LibrosPage> {
   Container _buildCategoryFilter() {
     return Container(
       padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFF302f3c),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: AppStyles.categoryFilterDecoration,
       child: Row(
         children: [
           const Text(
@@ -362,10 +236,7 @@ class _LibrosPageState extends State<LibrosPage> {
           const SizedBox(width: 10),
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF6c61af),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+              decoration: AppStyles.dropdownDecoration,
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: selectedCategory,
@@ -388,116 +259,6 @@ class _LibrosPageState extends State<LibrosPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class DetalleLibroPage extends StatelessWidget {
-  final String title;
-  final String author;
-  final String imageUrl;
-  final String size;
-  final String genre;
-  final String year;
-  final String format;
-  final String md5;
-
-  const DetalleLibroPage({
-    super.key,
-    required this.title,
-    required this.author,
-    required this.imageUrl,
-    required this.size,
-    required this.genre,
-    required this.year,
-    required this.format,
-    required this.md5,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.0),
-                    image: DecorationImage(
-                      image: NetworkImage(imageUrl),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: IconButton(
-                    icon: const Icon(Icons.bookmark_border, color: Colors.white),
-                    onPressed: () {
-                      // Acción para marcar como favorito
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              title,
-              style: TextStyles.title,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Autor: $author',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Género: $genre',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Año: $year',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Formato: $format',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Tamaño: $size',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                final downloadLinks = await AnnasArchiveApi.downloadBook(md5);
-                // Abre el primer enlace de descarga en el navegador
-                if (downloadLinks.isNotEmpty) {
-                  final url = downloadLinks.first;
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
-                  }
-                }
-              },
-              child: const Text('Descargar'),
-            ),
-          ],
-        ),
       ),
     );
   }

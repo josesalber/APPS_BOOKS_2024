@@ -5,7 +5,7 @@ import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dar
 class CourseInfoRow extends StatelessWidget {
   final Course course;
 
-  const CourseInfoRow({Key? key, required this.course}) : super(key: key);
+  const CourseInfoRow({super.key, required this.course});
 
   @override
   Widget build(BuildContext context) {

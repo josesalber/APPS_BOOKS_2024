@@ -7,13 +7,13 @@ class TextStyles {
     fontSize: 24,
   );
 
-  static final TextStyle Secondtitle = TextStyle(
+  static final TextStyle secondTitle = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
     foreground: Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
-      ..color = Color(0xFF1c1c2e),
+      ..color = const Color(0xFF1c1c2e),
   );
 
   static const TextStyle subtitle = TextStyle(
@@ -35,6 +35,11 @@ class TextStyles {
   static const TextStyle infoText = TextStyle(
     color: Colors.white,
     fontSize: 14,
+    fontWeight: FontWeight.bold,
+  );
+
+  static const TextStyle buttonText = TextStyle(
+    fontSize: 16,
     fontWeight: FontWeight.bold,
   );
 }
