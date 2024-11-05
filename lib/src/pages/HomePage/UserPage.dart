@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Login.dart';
 import 'widgets/text_styles.dart';
 import 'widgets/app_styles.dart';
-import 'widgets/detalle_libro.dart'; 
+import 'widgets/detalle_libro.dart';
+import 'widgets/config.dart'; // Importa ConfigPage
 import 'package:flutter_application_1/services/annas_archive_api.dart';
 
 class UserPage extends StatefulWidget {
@@ -21,12 +22,16 @@ class _UserPageState extends State<UserPage> {
   bool _isSearching = false;
   TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _filteredBooks = [];
+  String? _firstName;
+  String? _lastName;
+  String? _university;
 
   @override
   void initState() {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
     _fetchFavoriteBooks();
+    _fetchUserInfo();
   }
 
   Future<void> _fetchFavoriteBooks() async {
@@ -38,6 +43,21 @@ class _UserPageState extends State<UserPage> {
         favoriteBooks = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
         _filteredBooks = favoriteBooks;
       });
+    }
+  }
+
+  Future<void> _fetchUserInfo() async {
+    if (user != null) {
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(user!.uid);
+      final snapshot = await userDoc.get();
+      if (snapshot.exists) {
+        final data = snapshot.data()!;
+        setState(() {
+          _firstName = data['firstName'];
+          _lastName = data['lastName'];
+          _university = data['university'];
+        });
+      }
     }
   }
 
@@ -103,7 +123,10 @@ class _UserPageState extends State<UserPage> {
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
-              // Acción para el botón de configuración
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ConfigPage()),
+              ).then((_) => _fetchUserInfo()); // Recargar datos del usuario al volver
             },
           ),
         ],
@@ -180,16 +203,17 @@ class _UserPageState extends State<UserPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                user?.email ?? '',
+                '$_firstName $_lastName',
                 style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const Text(
-                '',
-                style: TextStyle(color: Colors.white70),
-              ),
-              const Text(
-                '',
-                style: TextStyle(color: Colors.white70),
+              if (_university != null)
+                Text(
+                  _university!,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              Text(
+                user?.email ?? '',
+                style: const TextStyle(color: Colors.white70),
               ),
             ],
           ),
@@ -294,9 +318,11 @@ class _UserPageState extends State<UserPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Biblioteca',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                const Flexible(
+                  child: Text(
+                    'Biblioteca',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 IconButton(
                   icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.white),
