@@ -7,6 +7,11 @@ import 'widgets/app_styles.dart';
 import 'widgets/detalle_libro.dart';
 import 'widgets/config.dart'; // Importa ConfigPage
 import 'package:flutter_application_1/services/annas_archive_api.dart';
+import 'widgets/UserPageConfig/ProfileCard.dart';
+import 'widgets/UserPageConfig/CategoryButtons.dart';
+import 'widgets/UserPageConfig/SwitchButtons.dart';
+import 'widgets/UserPageConfig/CoursesContainer.dart';
+import 'widgets/UserPageConfig/LibraryContainer.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -137,11 +142,23 @@ class _UserPageState extends State<UserPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildProfileCard(),
+            ProfileCard(
+              firstName: _firstName,
+              lastName: _lastName,
+              university: _university,
+              email: user?.email,
+            ),
             const SizedBox(height: 20),
-            _buildCategoryButtons(),
+            const CategoryButtons(),
             const SizedBox(height: 10), // Reducir el espacio entre los switches y los cuadros
-            _buildSwitches(),
+            SwitchButtons(
+              showCourses: _showCourses,
+              onSwitch: (title) {
+                setState(() {
+                  _showCourses = title == 'Mis cursos';
+                });
+              },
+            ),
             const SizedBox(height: 10), // Reducir el espacio entre los switches y los cuadros
             Expanded(
               child: Center(
@@ -156,7 +173,23 @@ class _UserPageState extends State<UserPage> {
                       child: child,
                     );
                   },
-                  child: _showCourses ? _buildCoursesContainer() : _buildLibraryContainer(),
+                  child: _showCourses ? const CoursesContainer() : LibraryContainer(
+                    isSearching: _isSearching,
+                    searchController: _searchController,
+                    onSearch: (query) {
+                      setState(() {
+                        _isSearching = !_isSearching;
+                        if (!_isSearching) {
+                          _searchController.clear();
+                          _filterBooks('');
+                        } else {
+                          _filterBooks(query);
+                        }
+                      });
+                    },
+                    filteredBooks: _filteredBooks,
+                    onRemove: _removeFromFavorites,
+                  ),
                 ),
               ),
             ),
@@ -177,282 +210,6 @@ class _UserPageState extends State<UserPage> {
                   ),
                 ),
                 child: const Text('CERRAR SESIÓN'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileCard() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 109, 96, 175),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            backgroundImage: AssetImage('assets/user_image.png'), // Reemplaza con tu imagen
-            radius: 30,
-          ),
-          const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '$_firstName $_lastName',
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              if (_university != null)
-                Text(
-                  _university!,
-                  style: const TextStyle(color: Colors.white70),
-                ),
-              Text(
-                user?.email ?? '',
-                style: const TextStyle(color: Colors.white70),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryButtons() {
-    final categories = ['Música', 'Programación', 'Diseño'];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: categories.map((category) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.cyanAccent,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            category,
-            style: const TextStyle(color: Colors.black),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildSwitches() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildSwitchButton('Mis cursos', _showCourses, true),
-        _buildSwitchButton('Mi biblioteca', !_showCourses, false),
-      ],
-    );
-  }
-
-  Widget _buildSwitchButton(String title, bool isSelected, bool isLeft) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _showCourses = title == 'Mis cursos';
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? Color.fromARGB(255, 109, 96, 175) : Colors.black54,
-          borderRadius: BorderRadius.horizontal(
-            left: isLeft ? const Radius.circular(8) : Radius.zero,
-            right: isLeft ? Radius.zero : const Radius.circular(8),
-          ),
-        ),
-        child: Text(
-          title,
-          style: const TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCoursesContainer() {
-    return SizedBox(
-      width: double.infinity,
-      height: 400, // Aumentar la altura de los cuadros
-      child: Container(
-        key: const ValueKey('courses'),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white24,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'Cursos guardados',
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            // Aquí puedes agregar más contenido relacionado con los cursos guardados
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLibraryContainer() {
-    return SizedBox(
-      width: double.infinity,
-      height: 400, // Aumentar la altura de los cuadros
-      child: Container(
-        key: const ValueKey('library'),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white24,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Flexible(
-                  child: Text(
-                    'Biblioteca',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _isSearching = !_isSearching;
-                      if (!_isSearching) {
-                        _searchController.clear();
-                        _filterBooks('');
-                      }
-                    });
-                  },
-                ),
-              ],
-            ),
-            if (_isSearching)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Buscar libros...',
-                    hintStyle: TextStyle(color: Colors.white70),
-                    filled: true,
-                    fillColor: Colors.white24,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.search, color: Colors.white),
-                  ),
-                  style: TextStyle(color: Colors.white),
-                  onChanged: _filterBooks,
-                ),
-              ),
-            const SizedBox(height: 16.0),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _filteredBooks.length,
-                itemBuilder: (context, index) {
-                  final book = _filteredBooks[index];
-                  return _buildDismissibleBookCard(book);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDismissibleBookCard(Map<String, dynamic> book) {
-    return Dismissible(
-      key: Key(book['md5']),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        color: Colors.red,
-        child: const Icon(Icons.delete, color: Colors.white, size: 32),
-      ),
-      onDismissed: (direction) {
-        _removeFromFavorites(book['md5']);
-      },
-      child: _buildBookCard(book),
-    );
-  }
-
-  Widget _buildBookCard(Map<String, dynamic> book) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetalleLibroPage(
-              title: book['title'],
-              author: book['author'],
-              imageUrl: book['imgUrl'],
-              size: book['size'],
-              genre: book['genre'],
-              year: book['year'],
-              format: book['format'],
-              md5: book['md5'],
-            ),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[850],
-          borderRadius: BorderRadius.circular(16.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            book['imgUrl'] != null && book['imgUrl'].isNotEmpty
-                ? Image.network(
-                    book['imgUrl'],
-                    height: 150,
-                    width: 100,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.error, size: 150);
-                    },
-                  )
-                : const SizedBox.shrink(),
-            const SizedBox(width: 16.0),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    book['title'],
-                    style: TextStyles.title,
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    'Autor: ${book['author']}',
-                    style: TextStyles.bodyText,
-                  ),
-                ],
               ),
             ),
           ],
