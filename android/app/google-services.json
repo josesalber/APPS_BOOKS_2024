@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "819355620126",
+    "project_id": "apprendeplus-e226f",
+    "storage_bucket": "apprendeplus-e226f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819355620126:android:7d99641f4e5e1fea356f0f",
+        "android_client_info": {
+          "package_name": "com.gatorrancia.apprendeplus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxKd8x07th27uwCEVX-MMxLJ3jH4dAR-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,7 @@
-// lib/src/widgets/CustomAppBar.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/src/pages/HomePage/Login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../UserPage.dart';
+import '../Login.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
@@ -8,7 +9,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xFF1C1C2D),
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor, // Usa el color de fondo del tema
       title: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -30,10 +31,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       leading: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AuthScreen()),
-          );
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const UserPage()),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AuthScreen()),
+            );
+          }
         },
         child: const CircleAvatar(
           //backgroundImage: AssetImage('assets/user_image.png'), // habrá que cambiar por base de datos xd

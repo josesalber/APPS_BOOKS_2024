@@ -42,4 +42,13 @@ class TextStyles {
     fontSize: 16,
     fontWeight: FontWeight.bold,
   );
+
+  static const TextStyle errorText = TextStyle(
+
+    color: Colors.red,
+
+    fontSize: 14,
+
+  );
+
 }

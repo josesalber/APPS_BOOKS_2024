@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppStyles {
   static const BoxDecoration containerDecoration = BoxDecoration(
-    color: Colors.grey,
+    color: Colors.white, // Asegúrate de que el color sea blanco
     borderRadius: BorderRadius.all(Radius.circular(16.0)),
     boxShadow: [
       BoxShadow(
@@ -29,7 +29,7 @@ class AppStyles {
   );
 
   static const BoxDecoration courseCardDecoration = BoxDecoration(
-    color: Colors.white,
+    color: Colors.white, // Asegúrate de que el color sea blanco
     borderRadius: BorderRadius.all(Radius.circular(15.0)),
     boxShadow: [
       BoxShadow(
@@ -41,14 +41,7 @@ class AppStyles {
   );
 
   static const BoxDecoration courseCategoryDecoration = BoxDecoration(
-    color: Colors.blueAccent,
     borderRadius: BorderRadius.all(Radius.circular(10.0)),
-  );
-
-  static const BoxDecoration courseImageDecoration = BoxDecoration(
-    borderRadius: BorderRadius.vertical(
-      top: Radius.circular(15.0),
-    ),
   );
 
   static const BoxDecoration courseDetailImageDecoration = BoxDecoration(
@@ -64,7 +57,7 @@ class AppStyles {
       colors: [Color(0x00FFFFFF), Color(0xFF1c1a29)],
     ),
   );
- 
+
   static const EdgeInsets containerPadding = EdgeInsets.all(16.0);
   static const EdgeInsets containerMargin = EdgeInsets.all(8.0);
   static const EdgeInsets searchFieldPadding = EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0);

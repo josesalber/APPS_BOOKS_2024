@@ -221,7 +221,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
 
   ClipRRect _buildCourseImage(Course course) {
     return ClipRRect(
-      borderRadius: AppStyles.courseImageDecoration.borderRadius ?? BorderRadius.zero,
+      borderRadius: AppStyles.courseDetailImageDecoration.borderRadius ?? BorderRadius.zero,
       child: Image.network(
         course.previewImage,
         height: 120,
