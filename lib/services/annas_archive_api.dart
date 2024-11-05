@@ -27,13 +27,12 @@ class AnnasArchiveApi {
     }
   }
 
-  static Future<List<String>> downloadBook(String md5) async {
+static Future<List<String>> downloadBook(String md5) async {
     final url = Uri.parse('https://$apiHost/download?md5=$md5');
     final response = await http.get(url, headers: {
       'x-rapidapi-key': apiKey,
       'x-rapidapi-host': apiHost,
     });
-
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       return List<String>.from(data);

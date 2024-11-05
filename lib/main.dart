@@ -31,12 +31,12 @@ class ApprendeApp extends StatelessWidget {
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
         ),
         textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
           bodyMedium: TextStyle(color: Colors.white),
-         // bodyMedium: TextStyle(color: Colors.white),
         ),
       ),
-      darkTheme: ThemeData.dark(), // Opcional: tema oscuro
-      themeMode: ThemeMode.light, // Fuerza el uso del tema claro
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.light,
       home: const AuthWrapper(),
     );
   }
@@ -53,9 +53,9 @@ class AuthWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasData) {
-          return const HomePage(); // Redirigir a HomePage si el usuario está autenticado
+          return const HomePage();
         } else {
-          return const AuthScreen(); // Redirigir a AuthScreen si el usuario no está autenticado
+          return const AuthScreen();
         }
       },
     );

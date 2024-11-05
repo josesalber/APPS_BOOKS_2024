@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,6 +26,24 @@ class DetalleLibroPage extends StatelessWidget {
     required this.format,
     required this.md5,
   });
+
+  Future<void> _addToFavorites() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      final favoritesCollection = userDoc.collection('favorites');
+      await favoritesCollection.doc(md5).set({
+        'title': title,
+        'author': author,
+        'imageUrl': imageUrl,
+        'size': size,
+        'genre': genre,
+        'year': year,
+        'format': format,
+        'md5': md5,
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +73,7 @@ class DetalleLibroPage extends StatelessWidget {
                   right: 10,
                   child: IconButton(
                     icon: const Icon(Icons.bookmark_border, color: Colors.white),
-                    onPressed: () {
-                      // Acción para marcar como favorito
-                    },
+                    onPressed: _addToFavorites,
                   ),
                 ),
               ],
@@ -94,14 +112,16 @@ class DetalleLibroPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final downloadLinks = await AnnasArchiveApi.downloadBook(md5);
-                // Abre el primer enlace de descarga en el navegador
-                if (downloadLinks.isNotEmpty) {
+                if (downloadLinks?.isNotEmpty ?? false) {
                   final url = downloadLinks.first;
                   if (await canLaunch(url)) {
                     await launch(url);
                   } else {
                     throw 'Could not launch $url';
                   }
+                } else {
+                  // Manejar el caso en que no haya enlaces de descarga
+                  print('No download links available');
                 }
               },
               child: const Text('Descargar'),
