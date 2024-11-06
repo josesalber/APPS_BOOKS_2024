@@ -28,7 +28,7 @@ class ProfileCard extends StatelessWidget {
       child: Row(
         children: [
           const CircleAvatar(
-            backgroundImage: AssetImage('assets/user_image.png'), // Reemplaza con tu imagen
+            backgroundImage: AssetImage('assets/user_image.png'), // Reemplaza con la imagen
             radius: 30,
           ),
           const SizedBox(width: 20),

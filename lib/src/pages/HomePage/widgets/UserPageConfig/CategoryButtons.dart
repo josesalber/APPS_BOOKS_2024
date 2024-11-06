@@ -5,7 +5,7 @@ class CategoryButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = ['Música', 'Programación', 'Diseño'];
+    final categories = ['~', '~', '~'];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: categories.map((category) {

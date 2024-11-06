@@ -9,20 +9,23 @@ class CourseInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildInfoContainer(
-          color: Colors.blue,
-          icon: Icons.person,
-          text: "Tutor: ${course.author}",
-        ),
-        _buildInfoContainer(
-          color: Colors.orange,
-          icon: Icons.group,
-          text: "${course.students} estudiantes",
-        ),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildInfoContainer(
+            color: Colors.blue,
+            icon: Icons.person,
+            text: "Tutor: ${course.author}",
+          ),
+          _buildInfoContainer(
+            color: Colors.orange,
+            icon: Icons.group,
+            text: "${course.students} estudiantes",
+          ),
+        ],
+      ),
     );
   }
 

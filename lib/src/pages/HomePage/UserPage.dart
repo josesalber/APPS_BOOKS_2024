@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_application_1/model/course.dart';
 import 'Login.dart';
 import 'widgets/text_styles.dart';
 import 'widgets/app_styles.dart';
 import 'widgets/detalle_libro.dart';
-import 'widgets/config.dart'; // Importa ConfigPage
+import 'widgets/config.dart'; 
 import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'widgets/UserPageConfig/ProfileCard.dart';
 import 'widgets/UserPageConfig/CategoryButtons.dart';
@@ -24,6 +25,8 @@ class _UserPageState extends State<UserPage> {
   bool _showCourses = true;
   User? user;
   List<Map<String, dynamic>> favoriteBooks = [];
+  List<Course> favoriteCourses = [];
+  List<Course> filteredCourses = [];
   bool _isSearching = false;
   TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _filteredBooks = [];
@@ -36,6 +39,7 @@ class _UserPageState extends State<UserPage> {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
     _fetchFavoriteBooks();
+    _fetchFavoriteCourses();
     _fetchUserInfo();
   }
 
@@ -47,6 +51,18 @@ class _UserPageState extends State<UserPage> {
       setState(() {
         favoriteBooks = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
         _filteredBooks = favoriteBooks;
+      });
+    }
+  }
+
+  Future<void> _fetchFavoriteCourses() async {
+    if (user != null) {
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(user!.uid);
+      final coursesCollection = userDoc.collection('courses');
+      final snapshot = await coursesCollection.get();
+      setState(() {
+        favoriteCourses = snapshot.docs.map((doc) => Course.fromJson(doc.data())).toList();
+        filteredCourses = favoriteCourses;
       });
     }
   }
@@ -81,14 +97,28 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
-  Future<void> _removeFromFavorites(String md5) async {
+  void _filterCourses(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredCourses = favoriteCourses;
+      } else {
+        filteredCourses = favoriteCourses.where((course) {
+          final titleLower = course.title.toLowerCase();
+          final searchLower = query.toLowerCase();
+          return titleLower.contains(searchLower);
+        }).toList();
+      }
+    });
+  }
+
+  Future<void> _removeFromFavorites(String title) async {
     if (user != null) {
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user!.uid);
-      final favoritesCollection = userDoc.collection('favorites');
-      await favoritesCollection.doc(md5).delete();
+      final coursesCollection = userDoc.collection('courses');
+      await coursesCollection.doc(title).delete();
       setState(() {
-        favoriteBooks.removeWhere((book) => book['md5'] == md5);
-        _filteredBooks.removeWhere((book) => book['md5'] == md5);
+        favoriteCourses.removeWhere((course) => course.title == title);
+        filteredCourses.removeWhere((course) => course.title == title);
       });
     }
   }
@@ -96,7 +126,7 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C2E), 
+      backgroundColor: const Color(0xFF1C1C2E),
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         title: const Row(
@@ -131,7 +161,10 @@ class _UserPageState extends State<UserPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ConfigPage()),
-              ).then((_) => _fetchUserInfo()); // Recargar datos del usuario al volver
+              ).then((_) {
+                _fetchUserInfo();
+                _fetchFavoriteCourses();
+              }); // Recargar datos del usuario al volver
             },
           ),
         ],
@@ -173,43 +206,33 @@ class _UserPageState extends State<UserPage> {
                       child: child,
                     );
                   },
-                  child: _showCourses ? const CoursesContainer() : LibraryContainer(
-                    isSearching: _isSearching,
-                    searchController: _searchController,
-                    onSearch: (query) {
-                      setState(() {
-                        _isSearching = !_isSearching;
-                        if (!_isSearching) {
-                          _searchController.clear();
-                          _filterBooks('');
-                        } else {
-                          _filterBooks(query);
-                        }
-                      });
-                    },
-                    filteredBooks: _filteredBooks,
-                    onRemove: _removeFromFavorites,
-                  ),
+                  child: _showCourses
+                      ? CoursesContainer(
+                          favoriteCourses: filteredCourses,
+                          onRemove: _removeFromFavorites,
+                          searchController: _searchController,
+                          onSearch: _filterCourses,
+                          isSearching: _isSearching,
+                          filteredCourses: filteredCourses,
+                        )
+                      : LibraryContainer(
+                          isSearching: _isSearching,
+                          searchController: _searchController,
+                          onSearch: (query) {
+                            setState(() {
+                              _isSearching = !_isSearching;
+                              if (!_isSearching) {
+                                _searchController.clear();
+                                _filterBooks('');
+                              } else {
+                                _filterBooks(query);
+                              }
+                            });
+                          },
+                          filteredBooks: _filteredBooks,
+                          onRemove: _removeFromFavorites,
+                        ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AuthScreen()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                ),
-                child: const Text('CERRAR SESIÓN'),
               ),
             ),
           ],

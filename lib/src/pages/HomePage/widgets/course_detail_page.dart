@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; // Importa el archivo de estilos
 import 'package:flutter_application_1/src/pages/HomePage/widgets/course_info_row.dart'; // Importa el nuevo widget
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CourseDetailPage extends StatelessWidget {
   final Course course;
@@ -51,8 +53,8 @@ class CourseDetailPage extends StatelessWidget {
                       right: 10,
                       child: IconButton(
                         icon: const Icon(Icons.favorite_border, color: Colors.white),
-                        onPressed: () {
-                          // Acción del botón de corazón
+                        onPressed: () async {
+                          await _addToFavorites(context);
                         },
                       ),
                     ),
@@ -222,6 +224,30 @@ class CourseDetailPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _addToFavorites(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      final coursesCollection = userDoc.collection('courses');
+      await coursesCollection.doc(course.title).set({
+        'title': course.title,
+        'author': course.author,
+        'category': course.category,
+        'previewImage': course.previewImage,
+        'couponUrl': course.couponUrl,
+        'rating': course.rating,
+        'expiredDate': course.expiredDate.toIso8601String(),
+        'students': course.students,
+        'contentLength': course.contentLength,
+        'heading': course.heading,
+        'description': course.description,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Curso agregado a favoritos')),
+      );
+    }
   }
 
   Widget _buildInfoCard(BuildContext context, Widget child) {

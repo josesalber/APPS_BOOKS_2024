@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application_1/src/pages/HomePage/Login.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -85,8 +86,14 @@ class _ConfigPageState extends State<ConfigPage> {
         _ageController.text = data['age']?.toString() ?? '';
         _institutionType = data['institutionType'] ?? 'colegio';
         _university = data['university'];
-        _coursePreferences = List<String>.from(data['coursePreferences'] ?? []);
-        _bookPreferences = List<String>.from(data['bookPreferences'] ?? []);
+        setState(() {});
+      }
+
+      final preferencesSnapshot = await userDoc.collection('user_data').doc('preferences').get();
+      if (preferencesSnapshot.exists) {
+        final preferencesData = preferencesSnapshot.data()!;
+        _coursePreferences = List<String>.from(preferencesData['coursePreferences'] ?? []);
+        _bookPreferences = List<String>.from(preferencesData['bookPreferences'] ?? []);
         setState(() {});
       }
     }
@@ -97,18 +104,38 @@ class _ConfigPageState extends State<ConfigPage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+        // Guardar datos personales en la colección 'users'
         await userDoc.set({
           'firstName': _firstNameController.text,
           'lastName': _lastNameController.text,
           'age': int.tryParse(_ageController.text),
           'institutionType': _institutionType,
           'university': _university,
+        });
+
+        // Guardar preferencias en la subcolección 'user_data/preferences'
+        await userDoc.collection('user_data').doc('preferences').set({
           'coursePreferences': _coursePreferences,
           'bookPreferences': _bookPreferences,
         });
+
+        // Mostrar SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Datos guardados!')),
+        );
+
         Navigator.pop(context);
       }
     }
+  }
+
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const AuthScreen()),
+    );
   }
 
   @override
@@ -252,6 +279,11 @@ class _ConfigPageState extends State<ConfigPage> {
               ElevatedButton(
                 onPressed: _saveUserData,
                 child: const Text('Guardar'),
+              ),
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: _signOut,
+                child: const Text('Cerrar Sesión'),
               ),
             ],
           ),
