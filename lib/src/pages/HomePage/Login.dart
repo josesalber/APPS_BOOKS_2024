@@ -56,7 +56,20 @@ class _LoginTabState extends State<LoginTab> {
       );
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error: $e';
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'invalid-email':
+              _errorMessage = 'La dirección de correo electrónico está mal formateada.';
+              break;
+            case 'weak-password':
+              _errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+              break;
+            default:
+              _errorMessage = 'Error: ${e.message}'; 
+          }
+        } else {
+          _errorMessage = 'Error: $e';
+        }
       });
     }
   }
@@ -135,7 +148,20 @@ class _RegisterTabState extends State<RegisterTab> {
       );
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error: $e';
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'invalid-email':
+              _errorMessage = 'La dirección de correo electrónico está mal formateada.';
+              break;
+            case 'weak-password':
+              _errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
+              break;
+            default:
+              _errorMessage = 'Error: ${e.message}';
+          }
+        } else {
+          _errorMessage = 'Error: $e';
+        }
       });
     }
   }
