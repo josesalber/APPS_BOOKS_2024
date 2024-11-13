@@ -6,7 +6,6 @@ class AnnasArchiveApi {
   static const String apiHost = 'annas-archive-api.p.rapidapi.com';
 
   static Future<List<dynamic>> searchBooks(String query, {String category = 'all'}) async {
-    // Reemplazar 'novelas' por 'fiction' en la categoría
     if (category == 'novelas') {
       category = 'fiction';
     }

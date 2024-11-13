@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/src/pages/HomePage/Login.dart';
+import 'text_styles.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/ProfileCard.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -153,6 +155,14 @@ class _ConfigPageState extends State<ConfigPage> {
           key: _formKey,
           child: ListView(
             children: [
+              ProfileCard(
+                firstName: _firstNameController.text,
+                lastName: _lastNameController.text,
+                university: _university,
+                email: FirebaseAuth.instance.currentUser?.email,
+                role: _role, // Pasar el rol del usuario
+              ),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _firstNameController,
                 decoration: const InputDecoration(labelText: 'Nombre'),

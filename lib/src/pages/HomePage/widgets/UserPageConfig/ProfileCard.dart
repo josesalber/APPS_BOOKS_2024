@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../text_styles.dart';
 
 class ProfileCard extends StatelessWidget {
@@ -8,6 +6,7 @@ class ProfileCard extends StatelessWidget {
   final String? lastName;
   final String? university;
   final String? email;
+  final String? role;
 
   const ProfileCard({
     super.key,
@@ -15,6 +14,7 @@ class ProfileCard extends StatelessWidget {
     this.lastName,
     this.university,
     this.email,
+    this.role,
   });
 
   @override
@@ -28,16 +28,33 @@ class ProfileCard extends StatelessWidget {
       child: Row(
         children: [
           const CircleAvatar(
-            backgroundImage: AssetImage('assets/user_image.png'), // Reemplaza con la imagen
+            backgroundImage: AssetImage('assets/user_image.png'), 
             radius: 30,
           ),
           const SizedBox(width: 20),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '$firstName $lastName',
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Text(
+                    '$firstName $lastName',
+                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  if (role == 'admin') // Mostrar el listón rojo si el rol es 'admin'
+                    Container(
+                      margin: const EdgeInsets.only(left: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: const Text(
+                        'Administrador',
+                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
               ),
               if (university != null)
                 Text(
