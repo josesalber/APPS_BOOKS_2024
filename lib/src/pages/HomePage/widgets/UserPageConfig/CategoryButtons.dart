@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 
 class CategoryButtons extends StatelessWidget {
-  const CategoryButtons({super.key});
+  final List<String> categories;
+
+  const CategoryButtons({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
-    final categories = ['~', '~', '~'];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: categories.map((category) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.cyanAccent,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            category,
-            style: const TextStyle(color: Colors.black),
-          ),
-        );
-      }).toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: categories.map((category) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Chip(
+              label: Text(
+                category,
+                style: const TextStyle(color: Colors.black),
+              ),
+              backgroundColor: Colors.cyanAccent,
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
