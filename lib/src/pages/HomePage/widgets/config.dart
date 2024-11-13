@@ -19,6 +19,7 @@ class _ConfigPageState extends State<ConfigPage> {
   String? _university;
   List<String> _coursePreferences = [];
   List<String> _bookPreferences = [];
+  String _role = 'user'; // Rol del usuario
 
   final List<String> _institutionTypes = ['colegio', 'tecnico', 'universitario', 'otros'];
   final List<String> _universities = [
@@ -86,6 +87,7 @@ class _ConfigPageState extends State<ConfigPage> {
         _ageController.text = data['age']?.toString() ?? '';
         _institutionType = data['institutionType'] ?? 'colegio';
         _university = data['university'];
+        _role = data['role'] ?? 'user'; // Obtener el rol del usuario
         setState(() {});
       }
 
@@ -112,6 +114,7 @@ class _ConfigPageState extends State<ConfigPage> {
           'age': int.tryParse(_ageController.text),
           'institutionType': _institutionType,
           'university': _university,
+          'role': _role, // Guardar el rol del usuario
         });
 
         // Guardar preferencias en la subcolección 'user_data/preferences'
@@ -281,6 +284,17 @@ class _ConfigPageState extends State<ConfigPage> {
                 child: const Text('Guardar'),
               ),
               const SizedBox(height: 16.0),
+              if (_role == 'admin') // Mostrar el botón solo si el rol es 'admin'
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AdminSettingsPage()),
+                    );
+                  },
+                  child: const Text('Ajustes de Administrador'),
+                ),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _signOut,
                 child: const Text('Cerrar Sesión'),
@@ -288,6 +302,22 @@ class _ConfigPageState extends State<ConfigPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AdminSettingsPage extends StatelessWidget {
+  const AdminSettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ajustes de Administrador'),
+      ),
+      body: const Center(
+        child: Text('Contenido de Ajustes de Administrador'),
       ),
     );
   }
