@@ -229,12 +229,25 @@ class _ConfigPageState extends State<ConfigPage> {
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _selectProfileImage,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Color del texto
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
                 child: const Text('Seleccionar Foto de Perfil'),
               ),
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _firstNameController,
-                decoration: const InputDecoration(labelText: 'Nombre'),
+                decoration: InputDecoration(
+                  labelText: 'Nombre',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingrese su nombre';
@@ -242,9 +255,17 @@ class _ConfigPageState extends State<ConfigPage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _lastNameController,
-                decoration: const InputDecoration(labelText: 'Apellido'),
+                decoration: InputDecoration(
+                  labelText: 'Apellido',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingrese su apellido';
@@ -252,9 +273,17 @@ class _ConfigPageState extends State<ConfigPage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _ageController,
-                decoration: const InputDecoration(labelText: 'Edad'),
+                decoration: InputDecoration(
+                  labelText: 'Edad',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -263,9 +292,16 @@ class _ConfigPageState extends State<ConfigPage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16.0),
               DropdownButtonFormField<String>(
                 value: _institutionType,
-                decoration: const InputDecoration(labelText: 'Tipo de Institución'),
+                decoration: InputDecoration(
+                  labelText: 'Tipo de Institución',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
                 items: _institutionTypes.map((type) {
                   return DropdownMenuItem(
                     value: type,
@@ -284,9 +320,17 @@ class _ConfigPageState extends State<ConfigPage> {
                 dropdownColor: Colors.black, // Cambia el color de fondo del menú desplegable
               ),
               if (_institutionType == 'universitario')
+                const SizedBox(height: 16.0),
+              if (_institutionType == 'universitario')
                 DropdownButtonFormField<String>(
                   value: _university,
-                  decoration: const InputDecoration(labelText: 'Universidad'),
+                  decoration: InputDecoration(
+                    labelText: 'Universidad',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                  ),
                   items: _universities.map((university) {
                     return DropdownMenuItem(
                       value: university,
@@ -302,7 +346,7 @@ class _ConfigPageState extends State<ConfigPage> {
                   dropdownColor: Colors.black, // Cambia el color de fondo del menú desplegable
                 ),
               const SizedBox(height: 16.0),
-              const Text('Preferencias de Cursos'),
+              const Text('Preferencias de Cursos', style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
                 spacing: 8.0,
                 children: _courseCategories.map((category) {
@@ -330,7 +374,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 }).toList(),
               ),
               const SizedBox(height: 16.0),
-              const Text('Preferencias de Libros'),
+              const Text('Preferencias de Libros', style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
                 spacing: 8.0,
                 children: _bookCategories.map((category) {
@@ -360,6 +404,13 @@ class _ConfigPageState extends State<ConfigPage> {
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _saveUserData,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Color del texto
+                  padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
                 child: const Text('Guardar'),
               ),
               const SizedBox(height: 16.0),
@@ -371,11 +422,25 @@ class _ConfigPageState extends State<ConfigPage> {
                       MaterialPageRoute(builder: (context) => const AdminSettingsPage()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Color del texto
+                    padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                  ),
                   child: const Text('Ajustes de Administrador'),
                 ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _signOut,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.red, // Color del texto
+                  padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                ),
                 child: const Text('Cerrar Sesión'),
               ),
             ],
