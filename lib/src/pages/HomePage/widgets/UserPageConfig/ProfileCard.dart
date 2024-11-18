@@ -7,6 +7,7 @@ class ProfileCard extends StatelessWidget {
   final String? university;
   final String? email;
   final String? role;
+  final String? profileImageUrl; // URL de la imagen de perfil
 
   const ProfileCard({
     super.key,
@@ -15,6 +16,7 @@ class ProfileCard extends StatelessWidget {
     this.university,
     this.email,
     this.role,
+    this.profileImageUrl,
   });
 
   @override
@@ -27,8 +29,10 @@ class ProfileCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const CircleAvatar(
-            backgroundImage: AssetImage('assets/user_image.png'), 
+          CircleAvatar(
+            backgroundImage: profileImageUrl != null
+                ? NetworkImage(profileImageUrl!)
+                : const AssetImage('assets/user_image.png') as ImageProvider,
             radius: 30,
           ),
           const SizedBox(width: 20),

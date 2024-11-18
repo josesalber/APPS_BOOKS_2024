@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/src/pages/HomePage/Login.dart';
-import 'text_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/ProfileCard.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/admin_settings_page.dart';
+import 'package:flutter_application_1/services/fortnite_api.dart';
+import 'text_styles.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -23,6 +24,7 @@ class _ConfigPageState extends State<ConfigPage> {
   List<String> _coursePreferences = [];
   List<String> _bookPreferences = [];
   String _role = 'user'; // Rol del usuario
+  String? _profileImageId; // ID de la imagen de perfil
 
   final List<String> _institutionTypes = ['colegio', 'tecnico', 'universitario', 'otros'];
   final List<String> _universities = [
@@ -91,6 +93,7 @@ class _ConfigPageState extends State<ConfigPage> {
         _institutionType = data['institutionType'] ?? 'colegio';
         _university = data['university'];
         _role = data['role'] ?? 'user'; // Obtener el rol del usuario
+        _profileImageId = data['profileImageId']; // Obtener la ID de la imagen de perfil
         setState(() {});
       }
 
@@ -118,6 +121,7 @@ class _ConfigPageState extends State<ConfigPage> {
           'institutionType': _institutionType,
           'university': _university,
           'role': _role, // Guardar el rol del usuario
+          'profileImageId': _profileImageId, // Guardar la ID de la imagen de perfil
         });
 
         // Guardar preferencias en la subcolección 'user_data/preferences'
@@ -144,6 +148,61 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
+  Future<void> _selectProfileImage() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      final images = await FortniteApi.fetchCharacterImages();
+      Navigator.of(context).pop(); // Cerrar el indicador de carga
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Seleccionar Foto de Perfil'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _profileImageId = images[index]['id'];
+                      });
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Foto de perfil seleccionada')),
+                      );
+                    },
+                    child: Image.network(images[index]['icon'] ?? ''),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      Navigator.of(context).pop(); // Cerrar el indicador de carga en caso de error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar imágenes: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,6 +221,14 @@ class _ConfigPageState extends State<ConfigPage> {
                 university: _university,
                 email: FirebaseAuth.instance.currentUser?.email,
                 role: _role, // Pasar el rol del usuario
+                profileImageUrl: _profileImageId != null
+                    ? 'https://fortnite-api.com/images/cosmetics/br/${_profileImageId!.toLowerCase()}/icon.png'
+                    : null, // Pasar la URL de la imagen de perfil
+              ),
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: _selectProfileImage,
+                child: const Text('Seleccionar Foto de Perfil'),
               ),
               const SizedBox(height: 16.0),
               TextFormField(
