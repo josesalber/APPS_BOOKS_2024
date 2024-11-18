@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/src/pages/HomePage/Login.dart';
 import 'text_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/ProfileCard.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/admin_settings_page.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -294,7 +295,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 child: const Text('Guardar'),
               ),
               const SizedBox(height: 16.0),
-              if (_role == 'admin') // Mostrar el botón solo si el rol es 'admin'
+              if (_role == 'admin') 
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -312,22 +313,6 @@ class _ConfigPageState extends State<ConfigPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class AdminSettingsPage extends StatelessWidget {
-  const AdminSettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ajustes de Administrador'),
-      ),
-      body: const Center(
-        child: Text('Contenido de Ajustes de Administrador'),
       ),
     );
   }

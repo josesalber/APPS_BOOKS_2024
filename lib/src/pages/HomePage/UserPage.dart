@@ -33,6 +33,7 @@ class _UserPageState extends State<UserPage> {
   String? _firstName;
   String? _lastName;
   String? _university;
+  String? _role;
   List<String> _coursePreferences = [];
   List<String> _bookPreferences = [];
 
@@ -94,6 +95,7 @@ class _UserPageState extends State<UserPage> {
           _firstName = data['firstName'];
           _lastName = data['lastName'];
           _university = data['university'];
+          _role = data['role']; // Obtener el rol del usuario
         });
       }
     }
@@ -198,6 +200,7 @@ class _UserPageState extends State<UserPage> {
               lastName: _lastName,
               university: _university,
               email: user?.email,
+              role: _role, // Pasar el rol del usuario
             ),
             const SizedBox(height: 20),
             CategoryButtons(categories: _showCourses ? _coursePreferences : _bookPreferences),
