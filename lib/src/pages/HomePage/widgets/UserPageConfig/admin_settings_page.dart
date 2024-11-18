@@ -17,6 +17,9 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   List<UserRecord> _filteredUsers = [];
   User? _currentUser;
   final TextEditingController _searchController = TextEditingController();
+  bool _showActiveUsers = true;
+  bool _showBannedUsers = false;
+  bool _showAllUsers = true;
 
   @override
   void initState() {
@@ -36,12 +39,13 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   Future<void> _fetchUsers() async {
     try {
       final usersSnapshot = await _firestore.collection('users').get();
+      print('Fetched ${usersSnapshot.docs.length} users');
       setState(() {
         _users = usersSnapshot.docs
             .map((doc) => UserRecord.fromDocument(doc))
             .where((user) => user.uid != _currentUser?.uid)
             .toList();
-        _filteredUsers = _users;
+        _filterUsers();
       });
     } catch (e) {
       print('Error fetching users: $e');
@@ -52,19 +56,27 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredUsers = _users.where((user) {
-        return user.firstName.toLowerCase().contains(query) ||
-               user.lastName.toLowerCase().contains(query) ||
-               user.email.toLowerCase().contains(query);
+        final matchesQuery = user.firstName.toLowerCase().contains(query) ||
+                             user.lastName.toLowerCase().contains(query) ||
+                             user.email.toLowerCase().contains(query);
+        if (_showAllUsers) {
+          return matchesQuery;
+        }
+        final matchesStatus = _showActiveUsers ? user.status == 1 : user.status == 0;
+        final matchesBanned = _showBannedUsers ? user.banned : true;
+        return matchesQuery && matchesStatus && matchesBanned;
       }).toList();
     });
   }
 
+  // Eliminación lógica del usuario
+
   Future<void> _deleteUser(String uid) async {
     try {
-      await _firestore.collection('users').doc(uid).delete();
+      await _firestore.collection('users').doc(uid).update({'status': 0});
       _fetchUsers();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario eliminado')),
+        const SnackBar(content: Text('Usuario marcado como eliminado')),
       );
     } catch (e) {
       print('Error deleting user: $e');
@@ -83,15 +95,46 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
     }
   }
 
-  Future<void> _banUser(String uid) async {
+  Future<void> _restrictUser(String uid, int days) async {
     try {
-      await _firestore.collection('users').doc(uid).update({'banned': true});
+      final banEndDate = DateTime.now().add(Duration(days: days));
+      await _firestore.collection('users').doc(uid).update({
+        'banned': true,
+        'banEndDate': banEndDate,
+      });
       _fetchUsers();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario baneado')),
+        SnackBar(content: Text('Usuario restringido por $days días')),
       );
     } catch (e) {
-      print('Error banning user: $e');
+      print('Error restricting user: $e');
+    }
+  }
+
+  Future<void> _unrestrictUser(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'banned': false,
+        'banEndDate': null,
+      });
+      _fetchUsers();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario desbaneado')),
+      );
+    } catch (e) {
+      print('Error unrestricting user: $e');
+    }
+  }
+
+  Future<void> _reactivateUser(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({'status': 1});
+      _fetchUsers();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario reactivado')),
+      );
+    } catch (e) {
+      print('Error reactivating user: $e');
     }
   }
 
@@ -181,14 +224,75 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
           children: [
             const Text('Usuarios', style: TextStyles.subtitle),
             const SizedBox(height: 10),
+            ExpansionTile(
+              title: const Text('Filtrar:'),
+              backgroundColor: const Color(0xFF6D60AF),
+              collapsedBackgroundColor: const Color(0xFF6D60AF),
+              textColor: Colors.white,
+              iconColor: Colors.white,
+              collapsedTextColor: Colors.white,
+              collapsedIconColor: Colors.white,
+              children: [
+                Wrap(
+                  spacing: 10.0,
+                  runSpacing: 10.0,
+                  children: [
+                    FilterChip(
+                      label: const Text('Activos'),
+                      selected: _showActiveUsers && !_showAllUsers,
+                      onSelected: (selected) {
+                        setState(() {
+                          _showActiveUsers = selected;
+                          _showAllUsers = false;
+                          _filterUsers();
+                        });
+                      },
+                    ),
+                    FilterChip(
+                      label: const Text('Eliminados'),
+                      selected: !_showActiveUsers && !_showAllUsers,
+                      onSelected: (selected) {
+                        setState(() {
+                          _showActiveUsers = !selected;
+                          _showAllUsers = false;
+                          _filterUsers();
+                        });
+                      },
+                    ),
+                    FilterChip(
+                      label: const Text('Restringidos'),
+                      selected: _showBannedUsers && !_showAllUsers,
+                      onSelected: (selected) {
+                        setState(() {
+                          _showBannedUsers = selected;
+                          _showAllUsers = false;
+                          _filterUsers();
+                        });
+                      },
+                    ),
+                    FilterChip(
+                      label: const Text('Todos'),
+                      selected: _showAllUsers,
+                      onSelected: (selected) {
+                        setState(() {
+                          _showAllUsers = selected;
+                          _showActiveUsers = !selected;
+                          _showBannedUsers = !selected;
+                          _filterUsers();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
             TextField(
               controller: _searchController,
               decoration: const InputDecoration(
                 labelText: 'Buscar usuarios',
-                prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
-              style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -196,29 +300,19 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                 itemCount: _filteredUsers.length,
                 itemBuilder: (context, index) {
                   final user = _filteredUsers[index];
+                  final profileImageUrl = user.profileImageId != null
+                      ? 'https://fortnite-api.com/images/cosmetics/br/${user.profileImageId!.toLowerCase()}/icon.png'
+                      : 'assets/user_image.png';
                   return Card(
+                    color: user.status == 0 ? Colors.red : null, // Color rojo para usuarios inactivos
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     child: ListTile(
-                      title: Row(
-                        children: [
-                          Text(
-                            '${user.firstName} ${user.lastName}',
-                            style: TextStyles.bodyText,
-                          ),
-                          if (user.role == 'admin')
-                            Container(
-                              margin: const EdgeInsets.only(left: 8.0),
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              child: const Text(
-                                'Admin',
-                                style: TextStyle(color: Colors.white, fontSize: 12.0),
-                              ),
-                            ),
-                        ],
+                      leading: CircleAvatar(
+                        backgroundImage: AssetImage(profileImageUrl),
+                      ),
+                      title: Text(
+                        '${user.firstName} ${user.lastName}',
+                        style: TextStyles.bodyText,
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,6 +320,8 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                           Text(user.email, style: TextStyles.bodyText),
                           Text('UID: ${user.uid}', style: TextStyles.bodyText),
                           Text('Banned: ${user.banned}', style: TextStyles.bodyText),
+                          if (user.banned && user.banEndDate != null)
+                            Text('Restricción hasta: ${user.banEndDate}', style: TextStyles.bodyText),
                         ],
                       ),
                       trailing: PopupMenuButton<String>(
@@ -240,8 +336,14 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                             case 'assignRole':
                               _updateUserRole(user.uid, user.role == 'admin' ? 'user' : 'admin');
                               break;
-                            case 'ban':
-                              _banUser(user.uid);
+                            case 'restrict':
+                              _restrictUser(user.uid, 7); // Restringir por 7 días
+                              break;
+                            case 'unrestrict':
+                              _unrestrictUser(user.uid);
+                              break;
+                            case 'reactivate':
+                              _reactivateUser(user.uid);
                               break;
                             case 'resetPassword':
                               _resetPassword(user.email);
@@ -249,10 +351,16 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                           }
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Eliminar'),
-                          ),
+                          if (user.status == 1)
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Eliminar'),
+                            )
+                          else
+                            const PopupMenuItem(
+                              value: 'reactivate',
+                              child: Text('Reactivar cuenta'),
+                            ),
                           const PopupMenuItem(
                             value: 'edit',
                             child: Text('Editar'),
@@ -261,10 +369,16 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                             value: 'assignRole',
                             child: Text(user.role == 'admin' ? 'Revocar privilegios de administrador' : 'Asignar Rol de Admin'),
                           ),
-                          const PopupMenuItem(
-                            value: 'ban',
-                            child: Text('Banear'),
-                          ),
+                          if (!user.banned)
+                            const PopupMenuItem(
+                              value: 'restrict',
+                              child: Text('Restringir (7 días)'),
+                            )
+                          else
+                            const PopupMenuItem(
+                              value: 'unrestrict',
+                              child: Text('Desbanear'),
+                            ),
                           const PopupMenuItem(
                             value: 'resetPassword',
                             child: Text('Restablecer Contraseña'),
@@ -290,6 +404,9 @@ class UserRecord {
   final String email;
   final String role;
   final bool banned;
+  final int status; // Campo de estado
+  final DateTime? banEndDate; // Fecha de fin de restricción
+  final String? profileImageId; // ID de la imagen de perfil
 
   UserRecord({
     required this.uid,
@@ -298,6 +415,9 @@ class UserRecord {
     required this.email,
     required this.role,
     required this.banned,
+    required this.status, // Inicializar el campo de estado
+    this.banEndDate, // Inicializar el campo de fin de restricción
+    this.profileImageId, // Inicializar el campo de imagen de perfil
   });
 
   factory UserRecord.fromDocument(DocumentSnapshot doc) {
@@ -309,6 +429,9 @@ class UserRecord {
       email: data['email'] ?? '',
       role: data['role'] ?? 'user',
       banned: data['banned'] ?? false,
+      status: data['status'] ?? 1, // Obtener el campo de estado
+      banEndDate: data['banEndDate'] != null ? (data['banEndDate'] as Timestamp).toDate() : null, // Obtener la fecha de fin de restricción
+      profileImageId: data['profileImageId'], // Obtener la ID de la imagen de perfil
     );
   }
 }

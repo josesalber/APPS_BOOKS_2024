@@ -60,7 +60,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  #assets:
+  assets:
+    - assets/user_image.png
    # - assets/Icons/online_course_logo.jpg
     #- assets/Icons/udemy_logo.jpg
 

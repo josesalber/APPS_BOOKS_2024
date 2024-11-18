@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'HomePage.dart';
 import 'UserPage.dart';
 import 'widgets/text_styles.dart';
@@ -46,14 +47,23 @@ class _LoginTabState extends State<LoginTab> {
 
   Future<void> _signIn() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
+      if (userDoc.exists && userDoc.data()!['status'] == 0) {
+        await FirebaseAuth.instance.signOut();
+        setState(() {
+          _errorMessage = 'Esta cuenta no existe.';
+        });
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
     } catch (e) {
       setState(() {
         if (e is FirebaseAuthException) {

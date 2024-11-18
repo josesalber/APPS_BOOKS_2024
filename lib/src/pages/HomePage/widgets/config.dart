@@ -122,6 +122,7 @@ class _ConfigPageState extends State<ConfigPage> {
           'university': _university,
           'role': _role, // Guardar el rol del usuario
           'profileImageId': _profileImageId, // Guardar la ID de la imagen de perfil
+          'status': 1, // Establecer el estado como activo por defecto
         });
 
         // Guardar preferencias en la subcolección 'user_data/preferences'
