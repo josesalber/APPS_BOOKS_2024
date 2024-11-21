@@ -12,12 +12,16 @@ class SwitchButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildSwitchButton('Mis cursos', showCourses, true),
-        _buildSwitchButton('Mi biblioteca', !showCourses, false),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSwitchButton('Mis cursos', showCourses, true),
+            _buildSwitchButton('Mi biblioteca', !showCourses, false),
+          ],
+        );
+      },
     );
   }
 

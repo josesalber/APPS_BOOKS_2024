@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'HomePage.dart';
 import 'UserPage.dart';
 import 'widgets/text_styles.dart';
@@ -91,6 +92,54 @@ class _LoginTabState extends State<LoginTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'APP',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32.0,
+                ),
+              ),
+              Text(
+                'RENDE+',
+                style: TextStyle(
+                  color: Color(0xFF36E58C),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32.0,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          AnimatedTextKit(
+            animatedTexts: [
+              TypewriterAnimatedText(
+                '¡Bienvenido a APPrende+!',
+                textStyle: const TextStyle(
+                  fontSize: 32.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+                speed: const Duration(milliseconds: 100),
+              ),
+              TypewriterAnimatedText(
+                'Inicia sesión para continuar',
+                textStyle: const TextStyle(
+                  fontSize: 24.0,
+                  color: Colors.white,
+                ),
+                speed: const Duration(milliseconds: 100),
+              ),
+            ],
+            totalRepeatCount: 1,
+            pause: const Duration(milliseconds: 1000),
+            displayFullTextOnTap: true,
+            stopPauseOnTap: true,
+          ),
+          const SizedBox(height: 32),
           TextField(
             controller: _emailController,
             decoration: InputDecoration(
@@ -183,6 +232,54 @@ class _RegisterTabState extends State<RegisterTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'APP',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32.0,
+                ),
+              ),
+              Text(
+                'RENDE+',
+                style: TextStyle(
+                  color: Color(0xFF36E58C),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32.0,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          AnimatedTextKit(
+            animatedTexts: [
+              TypewriterAnimatedText(
+                '¡Bienvenido a APPrende+!',
+                textStyle: const TextStyle(
+                  fontSize: 32.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+                speed: const Duration(milliseconds: 100),
+              ),
+              TypewriterAnimatedText(
+                'Regístrate para continuar',
+                textStyle: const TextStyle(
+                  fontSize: 24.0,
+                  color: Colors.white,
+                ),
+                speed: const Duration(milliseconds: 100),
+              ),
+            ],
+            totalRepeatCount: 1,
+            pause: const Duration(milliseconds: 1000),
+            displayFullTextOnTap: true,
+            stopPauseOnTap: true,
+          ),
+          const SizedBox(height: 32),
           TextField(
             controller: _emailController,
             decoration: InputDecoration(

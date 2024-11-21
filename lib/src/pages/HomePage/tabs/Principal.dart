@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,10 @@ import 'package:flutter_application_1/services/course_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_application_1/model/course.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart'; // Importa la página de detalle del curso
+import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/detalle_libro.dart';
+import 'package:flutter_application_1/services/annas_archive_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Principal extends StatefulWidget {
   const Principal({super.key});
@@ -22,7 +26,9 @@ class _PrincipalState extends State<Principal> {
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentPage = 0;
   List<Course> latestCourses = [];
+  List<Map<String, dynamic>> latestBooks = [];
   List<String> userPreferences = [];
+  Timer? _timer;
 
   @override
   void initState() {
@@ -35,32 +41,66 @@ class _PrincipalState extends State<Principal> {
         });
       }
     });
+    _loadCachedContent();
+    _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      fetchLatestContent();
+    });
   }
 
-  Future<void> fetchLatestCourses() async {
+  Future<void> _loadCachedContent() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedCourses = prefs.getString('latestCourses');
+    final cachedBooks = prefs.getString('latestBooks');
+
+    if (cachedCourses != null && cachedBooks != null) {
+      setState(() {
+        latestCourses = (json.decode(cachedCourses) as List).map((data) => Course.fromJson(data)).toList();
+        latestBooks = (json.decode(cachedBooks) as List).cast<Map<String, dynamic>>();
+      });
+    } else {
+      fetchLatestContent();
+    }
+  }
+
+  Future<void> fetchLatestContent() async {
     try {
       final courseService = CourseService();
-      final allCourses = await courseService.fetchCourses(300); // Fetch a large number of courses
+      final allCourses = await courseService.fetchCourses(300);
 
-      // Filter courses based on user preferences
       final filteredCourses = <Course>[];
-      for (final preference in userPreferences) {
-        final coursesForPreference = allCourses.where((course) => course.category == preference).take(2).toList();
-        filteredCourses.addAll(coursesForPreference);
-        if (filteredCourses.length >= 6) break; // Stop if we have enough courses
+      if (userPreferences.isNotEmpty) {
+        for (final preference in userPreferences) {
+          final coursesForPreference = allCourses.where((course) => course.category == preference).take(2).toList();
+          filteredCourses.addAll(coursesForPreference);
+          if (filteredCourses.length >= 6) break;
+        }
+      } else {
+        // Si no hay preferencias, seleccionar 6 cursos aleatorios
+        allCourses.shuffle();
+        filteredCourses.addAll(allCourses.take(6));
       }
 
+      final books = await AnnasArchiveApi.searchBooks(''); // Fetch latest books
+      books.shuffle();
+      final filteredBooks = books.take(6).toList();
+
       setState(() {
-        latestCourses = filteredCourses.take(6).toList(); // Ensure we only have a maximum of 6 courses
+        latestCourses = filteredCourses.take(6).toList();
+        latestBooks = filteredBooks.cast<Map<String, dynamic>>();
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('latestCourses', json.encode(latestCourses));
+      prefs.setString('latestBooks', json.encode(latestBooks));
     } catch (e) {
-      print('Failed to load courses: $e');
+      print('Failed to load content: $e');
     }
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -71,8 +111,8 @@ class _PrincipalState extends State<Principal> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          await fetchLatestCourses();
-        }, // Recargar la API al iniciar la aplicación
+          await fetchLatestContent();
+        },
         child: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance.collection('users').doc(user?.uid).collection('user_data').doc('preferences').snapshots(),
           builder: (context, snapshot) {
@@ -87,7 +127,7 @@ class _PrincipalState extends State<Principal> {
             if (snapshot.hasData && snapshot.data!.exists) {
               final preferencesData = snapshot.data!.data() as Map<String, dynamic>;
               userPreferences = List<String>.from(preferencesData['coursePreferences'] ?? []);
-              fetchLatestCourses();
+              fetchLatestContent();
             }
 
             return ListView(
@@ -241,6 +281,93 @@ class _PrincipalState extends State<Principal> {
                                 ),
                               ],
                             ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16.0), // Espacio entre secciones
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Últimos libros',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Navegar a la página de todos los libros
+                        },
+                        child: const Text(
+                          'Ver todo',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 200.0,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: latestBooks.length,
+                    itemBuilder: (context, index) {
+                      final book = latestBooks[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetalleLibroPage(
+                                title: book['title'],
+                                author: book['author'],
+                                imageUrl: book['imgUrl'],
+                                size: book['size'],
+                                genre: book['genre'],
+                                year: book['year'],
+                                format: book['format'],
+                                md5: book['md5'],
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 120.0,
+                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.network(
+                                  book['imgUrl'],
+                                  height: 150,
+                                  width: 120,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Text(
+                                book['title'],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         ),
                       );

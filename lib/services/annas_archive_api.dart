@@ -5,10 +5,20 @@ class AnnasArchiveApi {
   static const String apiKey = '620d182c88msh7a8dedf0e4fc110p11774ejsnab3c124264e8';
   static const String apiHost = 'annas-archive-api.p.rapidapi.com';
 
+  // Caché en memoria para almacenar los resultados de las solicitudes
+  static final Map<String, List<dynamic>> _cache = {};
+
   static Future<List<dynamic>> searchBooks(String query, {String category = 'all'}) async {
     if (category == 'novelas') {
       category = 'fiction';
     }
+    final cacheKey = '$query-$category';
+    
+    // Verificar si los datos están en el caché
+    if (_cache.containsKey(cacheKey)) {
+      return _cache[cacheKey]!;
+    }
+
     final url = Uri.parse(
         'https://$apiHost/search?q=$query&cat=$category&skip=0&limit=600&ext=pdf,epub,mobi,azw3&sort=mostRelevant');
     final response = await http.get(url, headers: {
@@ -18,6 +28,7 @@ class AnnasArchiveApi {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      _cache[cacheKey] = data['books']; // Actualizar el caché
       return data['books'];
     } else {
       print('Failed to load books: ${response.statusCode}');
@@ -26,7 +37,7 @@ class AnnasArchiveApi {
     }
   }
 
-static Future<List<String>> downloadBook(String md5) async {
+  static Future<List<String>> downloadBook(String md5) async {
     final url = Uri.parse('https://$apiHost/download?md5=$md5');
     final response = await http.get(url, headers: {
       'x-rapidapi-key': apiKey,

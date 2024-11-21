@@ -21,58 +21,64 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 109, 96, 175),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundImage: profileImageUrl != null
-                ? NetworkImage(profileImageUrl!)
-                : const AssetImage('assets/user_image.png') as ImageProvider,
-            radius: 30,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 109, 96, 175),
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Text(
-                    '$firstName $lastName',
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  if (role == 'admin') // Mostrar el listón rojo si el rol es 'admin'
-                    Container(
-                      margin: const EdgeInsets.only(left: 8.0),
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: const Text(
-                        'Administrador',
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                ],
+              CircleAvatar(
+                backgroundImage: profileImageUrl != null
+                    ? NetworkImage(profileImageUrl!)
+                    : const AssetImage('assets/user_image.png') as ImageProvider,
+                radius: 30,
               ),
-              if (university != null)
-                Text(
-                  university!,
-                  style: const TextStyle(color: Colors.white70),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '$firstName $lastName',
+                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        if (role == 'admin') // Mostrar el listón rojo si el rol es 'admin'
+                          Container(
+                            margin: const EdgeInsets.only(left: 8.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: const Text(
+                              'Administrador',
+                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (university != null)
+                      Text(
+                        university!,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    Text(
+                      email ?? '',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ],
                 ),
-              Text(
-                email ?? '',
-                style: const TextStyle(color: Colors.white70),
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
