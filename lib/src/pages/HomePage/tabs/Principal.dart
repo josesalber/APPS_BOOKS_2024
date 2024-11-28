@@ -22,13 +22,14 @@ class Principal extends StatefulWidget {
   _PrincipalState createState() => _PrincipalState();
 }
 
-class _PrincipalState extends State<Principal> {
+class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixin {
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentPage = 0;
   List<Course> latestCourses = [];
   List<Map<String, dynamic>> latestBooks = [];
   List<String> userPreferences = [];
   Timer? _timer;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _PrincipalState extends State<Principal> {
       setState(() {
         latestCourses = (json.decode(cachedCourses) as List).map((data) => Course.fromJson(data)).toList();
         latestBooks = (json.decode(cachedBooks) as List).cast<Map<String, dynamic>>();
+        _isLoading = false;
       });
     } else {
       fetchLatestContent();
@@ -63,6 +65,9 @@ class _PrincipalState extends State<Principal> {
   }
 
   Future<void> fetchLatestContent() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final courseService = CourseService();
       final allCourses = await courseService.fetchCourses(300);
@@ -75,18 +80,18 @@ class _PrincipalState extends State<Principal> {
           if (filteredCourses.length >= 6) break;
         }
       } else {
-        // Si no hay preferencias, seleccionar 6 cursos aleatorios
         allCourses.shuffle();
         filteredCourses.addAll(allCourses.take(6));
       }
 
-      final books = await AnnasArchiveApi.searchBooks(''); // Fetch latest books
+      final books = await AnnasArchiveApi.searchBooks('');
       books.shuffle();
       final filteredBooks = books.take(6).toList();
 
       setState(() {
         latestCourses = filteredCourses.take(6).toList();
         latestBooks = filteredBooks.cast<Map<String, dynamic>>();
+        _isLoading = false;
       });
 
       final prefs = await SharedPreferences.getInstance();
@@ -94,6 +99,9 @@ class _PrincipalState extends State<Principal> {
       prefs.setString('latestBooks', json.encode(latestBooks));
     } catch (e) {
       print('Failed to load content: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -106,6 +114,7 @@ class _PrincipalState extends State<Principal> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Necesario para AutomaticKeepAliveClientMixin
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -127,151 +136,137 @@ class _PrincipalState extends State<Principal> {
             if (snapshot.hasData && snapshot.data!.exists) {
               final preferencesData = snapshot.data!.data() as Map<String, dynamic>;
               userPreferences = List<String>.from(preferencesData['coursePreferences'] ?? []);
-              fetchLatestContent();
             }
 
-            return ListView(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Anuncios',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(
-                  height: 200.0,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      bool active = index == _currentPage;
-                      return _buildBanner(active, index);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8.0), // Espacio entre banners y Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(5, (index) {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                      height: 8.0,
-                      width: _currentPage == index ? 24.0 : 8.0,
-                      decoration: BoxDecoration(
-                        color: _currentPage == index ? const Color(0xFF4b4287) : Colors.grey,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 16.0), // Espacio entre secciones
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            return _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView(
                     children: [
-                      const Text(
-                        'Últimos cursos',
-                        style: TextStyle(
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'Anuncios',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      FadeInText(
+                        text: '¡Muy pronto habrán noticias!',
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 24.0,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const FreeCoursesPage()),
-                          );
-                        },
-                        child: const Text(
-                          'Ver todo',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.blue,
-                          ),
+                      const SizedBox(height: 16.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Últimos cursos',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const FreeCoursesPage()),
+                                );
+                              },
+                              child: const Text(
+                                'Ver todo',
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 200.0,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: latestCourses.length,
-                    itemBuilder: (context, index) {
-                      final course = latestCourses[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CourseDetailPage(course: course),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 300.0,
-                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Card(
-                            color: Colors.blueAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16.0),
-                            ),
-                            child: Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  child: Image.network(
-                                    course.previewImage,
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
+                      SizedBox(
+                        height: 200.0,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: latestCourses.length,
+                          itemBuilder: (context, index) {
+                            final course = latestCourses[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CourseDetailPage(course: course),
                                   ),
-                                ),
-                                Positioned(
-                                  bottom: 16.0,
-                                  left: 16.0,
-                                  right: 16.0,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                );
+                              },
+                              child: Container(
+                                width: 300.0,
+                                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Card(
+                                  color: Colors.blueAccent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                  ),
+                                  child: Stack(
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                        decoration: BoxDecoration(
-                                          color: course.getCategoryColor(),
-                                          borderRadius: BorderRadius.circular(8.0),
-                                        ),
-                                        child: Text(
-                                          course.category,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(16.0),
+                                        child: Image.network(
+                                          course.previewImage,
+                                          height: 200,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                      const SizedBox(height: 8.0),
-                                      Text(
-                                        course.title,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          shadows: [
-                                            Shadow(
-                                              offset: Offset(1.0, 1.0),
-                                              blurRadius: 3.0,
-                                              color: Colors.black,
+                                      Positioned(
+                                        bottom: 16.0,
+                                        left: 16.0,
+                                        right: 16.0,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                              decoration: BoxDecoration(
+                                                color: course.getCategoryColor(),
+                                                borderRadius: BorderRadius.circular(8.0),
+                                              ),
+                                              child: Text(
+                                                course.category,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8.0),
+                                            Text(
+                                              course.title,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                shadows: [
+                                                  Shadow(
+                                                    offset: Offset(1.0, 1.0),
+                                                    blurRadius: 3.0,
+                                                    color: Colors.black,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -279,141 +274,151 @@ class _PrincipalState extends State<Principal> {
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16.0), // Espacio entre secciones
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Últimos libros',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          // Navegar a la página de todos los libros
-                        },
-                        child: const Text(
-                          'Ver todo',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.blue,
-                          ),
+                      const SizedBox(height: 16.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Últimos libros',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Navegar a la página de todos los libros
+                              },
+                              child: const Text(
+                                'Ver todo',
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 200.0,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: latestBooks.length,
+                          itemBuilder: (context, index) {
+                            final book = latestBooks[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetalleLibroPage(
+                                      title: book['title'],
+                                      author: book['author'],
+                                      imageUrl: book['imgUrl'],
+                                      size: book['size'],
+                                      genre: book['genre'],
+                                      year: book['year'],
+                                      format: book['format'],
+                                      md5: book['md5'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 120.0,
+                                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.network(
+                                        book['imgUrl'],
+                                        height: 150,
+                                        width: 120,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8.0),
+                                    Text(
+                                      book['title'],
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
-                  ),
-                ),
-                SizedBox(
-                  height: 200.0,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: latestBooks.length,
-                    itemBuilder: (context, index) {
-                      final book = latestBooks[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetalleLibroPage(
-                                title: book['title'],
-                                author: book['author'],
-                                imageUrl: book['imgUrl'],
-                                size: book['size'],
-                                genre: book['genre'],
-                                year: book['year'],
-                                format: book['format'],
-                                md5: book['md5'],
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: 120.0,
-                          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.network(
-                                  book['imgUrl'],
-                                  height: 150,
-                                  width: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              Text(
-                                book['title'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
+                  );
           },
         ),
       ),
     );
   }
 
-  Widget _buildBanner(bool active, int index) {
-    final double blur = active ? 10 : 0;
-    final double offset = active ? 10 : 0;
-    final double top = active ? 5 : 20;
+  @override
+  bool get wantKeepAlive => true;
+}
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOutQuint,
-      margin: EdgeInsets.only(top: top, bottom: 20, right: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
-        gradient: const LinearGradient(
-          colors: [Color(0xFFD1C4E9), Color(0xFF6A1B9A)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black87,
-            blurRadius: blur,
-            offset: Offset(offset, offset),
-          ),
-        ],
-      ),
+class FadeInText extends StatefulWidget {
+  final String text;
+  final TextStyle style;
+
+  const FadeInText({required this.text, required this.style, Key? key}) : super(key: key);
+
+  @override
+  _FadeInTextState createState() => _FadeInTextState();
+}
+
+class _FadeInTextState extends State<FadeInText> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true); // Repite la animación de forma inversa
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animation,
       child: Center(
         child: Text(
-          'Banner $index',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-          ),
+          widget.text,
+          style: widget.style,
         ),
       ),
     );
