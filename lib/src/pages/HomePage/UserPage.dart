@@ -34,7 +34,7 @@ class _UserPageState extends State<UserPage> {
   String? _lastName;
   String? _university;
   String? _role;
-  String? _profileImageUrl; // URL de la imagen de perfil
+  String? _profileImageUrl; 
   List<String> _coursePreferences = [];
   List<String> _bookPreferences = [];
 
@@ -96,10 +96,10 @@ class _UserPageState extends State<UserPage> {
           _firstName = data['firstName'];
           _lastName = data['lastName'];
           _university = data['university'];
-          _role = data['role']; // Obtener el rol del usuario
+          _role = data['role'];
           _profileImageUrl = data['profileImageId'] != null
               ? 'https://fortnite-api.com/images/cosmetics/br/${data['profileImageId'].toLowerCase()}/icon.png'
-              : null; // Obtener la URL de la imagen de perfil
+              : null; 
         });
       }
     }
@@ -204,8 +204,8 @@ class _UserPageState extends State<UserPage> {
               lastName: _lastName,
               university: _university,
               email: user?.email,
-              role: _role, // Pasar el rol del usuario
-              profileImageUrl: _profileImageUrl, // Pasar la URL de la imagen de perfil
+              role: _role, 
+              profileImageUrl: _profileImageUrl, 
             ),
             const SizedBox(height: 20),
             CategoryButtons(categories: _showCourses ? _coursePreferences : _bookPreferences),

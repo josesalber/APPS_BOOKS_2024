@@ -136,7 +136,6 @@ class DetalleLibroPage extends StatelessWidget {
                     throw 'Could not launch $url';
                   }
                 } else {
-                  // Manejar el caso en que no haya enlaces de descarga
                   print('No download links available');
                 }
               },

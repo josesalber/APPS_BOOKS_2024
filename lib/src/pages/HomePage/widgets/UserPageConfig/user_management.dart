@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../text_styles.dart';
+import 'package:flutter_application_1/services/fortnite_api.dart';
 
 class UserManagement extends StatefulWidget {
   const UserManagement({super.key});
@@ -77,6 +78,18 @@ class _UserManagementState extends State<UserManagement> {
       );
     } catch (e) {
       print('Error deleting user: $e');
+    }
+  }
+
+  Future<void> _deleteUserPermanently(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).delete();
+      _fetchUsers();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario eliminado definitivamente')),
+      );
+    } catch (e) {
+      print('Error deleting user permanently: $e');
     }
   }
 
@@ -213,7 +226,7 @@ class _UserManagementState extends State<UserManagement> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Usuarios', style: TextStyles.subtitle),
+        const Text('Administrador de Usuarios', style: TextStyles.subtitle),
         const SizedBox(height: 10),
         ExpansionTile(
           title: const Text('Filtrar:'),
@@ -292,14 +305,14 @@ class _UserManagementState extends State<UserManagement> {
             itemBuilder: (context, index) {
               final user = _filteredUsers[index];
               final profileImageUrl = user.profileImageId != null
-                  ? 'https://fortnite-api.com/images/cosmetics/br/${user.profileImageId!.toLowerCase()}/icon.png'
+                  ? FortniteApi.getImageUrl(user.profileImageId!)
                   : 'assets/user_image.png';
               return Card(
                 color: user.status == 0 ? Colors.red : null, // Color rojo para usuarios inactivos
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: AssetImage(profileImageUrl),
+                    backgroundImage: NetworkImage(profileImageUrl),
                   ),
                   title: Text(
                     '${user.firstName} ${user.lastName}',
@@ -308,7 +321,7 @@ class _UserManagementState extends State<UserManagement> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(user.email, style: TextStyles.bodyText),
+                      Text(user.email, style: TextStyles.bodyText), // Mostrar el correo del usuario
                       Text('UID: ${user.uid}', style: TextStyles.bodyText),
                       Text('Banned: ${user.banned}', style: TextStyles.bodyText),
                       if (user.banned && user.banEndDate != null)
@@ -320,6 +333,9 @@ class _UserManagementState extends State<UserManagement> {
                       switch (value) {
                         case 'delete':
                           _deleteUser(user.uid);
+                          break;
+                        case 'deletePermanently':
+                          _deleteUserPermanently(user.uid);
                           break;
                         case 'edit':
                           _editUser(user);
@@ -351,6 +367,11 @@ class _UserManagementState extends State<UserManagement> {
                         const PopupMenuItem(
                           value: 'reactivate',
                           child: Text('Reactivar cuenta'),
+                        ),
+                      if (user.status == 0)
+                        const PopupMenuItem(
+                          value: 'deletePermanently',
+                          child: Text('Eliminar Definitivamente'),
                         ),
                       const PopupMenuItem(
                         value: 'edit',

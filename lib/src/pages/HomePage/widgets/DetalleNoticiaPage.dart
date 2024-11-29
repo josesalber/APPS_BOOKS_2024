@@ -41,7 +41,7 @@ class DetalleNoticiaPage extends StatelessWidget {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 80.0), // Espacio para el botón
+            padding: const EdgeInsets.only(bottom: 80.0), 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
