@@ -13,6 +13,7 @@ import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/DetalleNoticiaPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+
 class Principal extends StatefulWidget {
   const Principal({super.key});
 
@@ -107,7 +108,11 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
 
   Future<void> _fetchNews() async {
     try {
-      final newsSnapshot = await FirebaseFirestore.instance.collection('Noticias').orderBy('timestamp', descending: true).get();
+      final newsSnapshot = await FirebaseFirestore.instance
+          .collection('Noticias')
+          .where('status', isEqualTo: 1) // Filtrar solo noticias activas
+          .orderBy('timestamp', descending: true)
+          .get();
       setState(() {
         news = newsSnapshot.docs.map((doc) => doc.data()).toList();
       });
@@ -389,11 +394,8 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                               ),
                             ),
                             TextButton(
-                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const LibrosPage()),
-                                );
+                              onPressed: () {
+                                DefaultTabController.of(context)?.animateTo(1); // Navegar a la pestaña de libros
                               },
                               child: const Text(
                                 'Ver todo',
@@ -500,7 +502,7 @@ class _FadeInTextState extends State<FadeInText> with SingleTickerProviderStateM
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat(reverse: true); 
+    )..repeat(reverse: true); // Repite la animación de forma inversa
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,

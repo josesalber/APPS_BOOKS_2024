@@ -160,8 +160,13 @@ body {
     text-align: center;
     padding: 10px;
     background-color: #f4f4f4;
-    position: relative; /* Cambiado de absolute a relative */
+    position: relative;
     bottom: 0;
     left: 0;
     box-sizing: border-box;
   }
+
+  /* noticias eliminadas */
+.deleted-news {
+  background-color: #ffcccc; 
+}
