@@ -15,6 +15,8 @@ import 'package:flutter_application_1/src/pages/HomePage/widgets/detalle_libro.d
 import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/DetalleNoticiaPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_controller.dart' as carousel_controller;
 
 class Principal extends StatefulWidget {
   const Principal({super.key});
@@ -110,7 +112,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
 
   Future<void> _fetchNews() async {
     try {
-      final newsSnapshot = await FirebaseFirestore.instance.collection('news').get();
+      final newsSnapshot = await FirebaseFirestore.instance.collection('Noticias').orderBy('timestamp', descending: true).get();
       setState(() {
         news = newsSnapshot.docs.map((doc) => doc.data()).toList();
       });
@@ -179,77 +181,82 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                                 fontWeight: FontWeight.bold,
                               ),
                             )
-                          : SizedBox(
-                              height: 200.0,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: news.length,
-                                itemBuilder: (context, index) {
-                                  final item = news[index];
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => DetalleNoticiaPage(
-                                            banner: item['banner'],
-                                            title: item['title'],
-                                            info: item['info'],
-                                            link: item['link'],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: 300.0,
-                                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                                      child: Card(
-                                        color: Colors.blueAccent,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16.0),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(16.0),
-                                              child: Image.network(
-                                                item['banner'],
-                                                height: 200,
-                                                width: double.infinity,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            Positioned(
-                                              bottom: 16.0,
-                                              left: 16.0,
-                                              right: 16.0,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black54,
-                                                      borderRadius: BorderRadius.circular(8.0),
-                                                    ),
-                                                    child: Text(
-                                                      item['title'],
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
+                          : CarouselSlider.builder(
+                              itemCount: news.length,
+                              itemBuilder: (context, index, realIndex) {
+                                final item = news[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetalleNoticiaPage(
+                                          banner: item['banner'],
+                                          title: item['title'],
+                                          info: item['info'],
+                                          link: item['link'],
                                         ),
                                       ),
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Card(
+                                      color: Colors.blueAccent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16.0),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(16.0),
+                                            child: Image.network(
+                                              item['banner'],
+                                              height: 200,
+                                              width: double.infinity,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 16.0,
+                                            left: 16.0,
+                                            right: 16.0,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black54,
+                                                    borderRadius: BorderRadius.circular(8.0),
+                                                  ),
+                                                  child: Text(
+                                                    item['title'],
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  );
-                                },
+                                  ),
+                                );
+                              },
+                              options: CarouselOptions(
+                                height: 200.0,
+                                enlargeCenterPage: true,
+                                autoPlay: true,
+                                aspectRatio: 16 / 9,
+                                autoPlayCurve: Curves.fastOutSlowIn,
+                                enableInfiniteScroll: true,
+                                autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                                viewportFraction: 0.8,
                               ),
                             ),
                       const SizedBox(height: 16.0),
