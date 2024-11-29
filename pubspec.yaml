@@ -44,6 +44,7 @@ dependencies:
   cloud_firestore: ^5.4.4
   animated_text_kit: ^4.2.1
   shimmer: ^2.0.0
+  marquee: ^2.0.0
   
 
 dev_dependencies:

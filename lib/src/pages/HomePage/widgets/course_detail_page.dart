@@ -6,6 +6,7 @@ import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dar
 import 'package:flutter_application_1/src/pages/HomePage/widgets/course_info_row.dart'; // Importa el nuevo widget
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:marquee/marquee.dart';
 
 class CourseDetailPage extends StatelessWidget {
   final Course course;
@@ -17,7 +18,22 @@ class CourseDetailPage extends StatelessWidget {
     final daysLeft = course.getExpiryTime();
     return Scaffold(
       appBar: AppBar(
-        title: Text(course.title, style: TextStyles.title),
+        title: SizedBox(
+          height: 30,
+          child: Marquee(
+            text: course.title,
+            style: TextStyles.title,
+            scrollAxis: Axis.horizontal,
+            blankSpace: 20.0,
+            velocity: 30.0,
+            pauseAfterRound: const Duration(seconds: 1),
+            startPadding: 10.0,
+            accelerationDuration: const Duration(seconds: 1),
+            accelerationCurve: Curves.linear,
+            decelerationDuration: const Duration(milliseconds: 500),
+            decelerationCurve: Curves.easeOut,
+          ),
+        ),
       ),
       body: Stack(
         children: [

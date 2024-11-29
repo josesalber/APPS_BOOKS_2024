@@ -1,12 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/CustomAppBar.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/libros.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/services/course_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,8 +13,6 @@ import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/DetalleNoticiaPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:carousel_slider/carousel_controller.dart' as carousel_controller;
-
 class Principal extends StatefulWidget {
   const Principal({super.key});
 
