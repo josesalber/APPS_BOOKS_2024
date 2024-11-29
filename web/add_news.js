@@ -29,6 +29,10 @@ const firebaseConfig = {
   const bannerInput = document.getElementById('banner');
   const bannerPreview = document.getElementById('banner-preview');
   const newsList = document.getElementById('news-list');
+  const submitButton = document.querySelector('button[type="submit"]');
+  
+  let isEditing = false;
+  let currentNewsId = null;
   
   // Verificar si los elementos del DOM están presentes
   if (loginButton && logoutButton && addNewsForm && bannerInput) {
@@ -138,7 +142,7 @@ const firebaseConfig = {
       });
     });
   
-    // Agregar noticia
+    // Agregar o actualizar noticia
     addNewsForm.addEventListener('submit', (e) => {
       e.preventDefault();
   
@@ -149,36 +153,66 @@ const firebaseConfig = {
       const adminId = auth.currentUser.uid;
       const adminEmail = auth.currentUser.email;
   
-      addDoc(collection(db, 'Noticias'), {
-        banner,
-        title,
-        info,
-        link,
-        adminId,
-        adminEmail,
-        timestamp: serverTimestamp()
-      })
-      .then(() => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Noticia agregada',
-          text: 'La noticia ha sido agregada exitosamente.',
-          confirmButtonColor: '#4CAF50',
+      if (isEditing && currentNewsId) {
+        // Actualizar noticia existente
+        const newsDoc = doc(db, 'Noticias', currentNewsId);
+        updateDoc(newsDoc, {
+          banner,
+          title,
+          info,
+          link,
+          adminId,
+          adminEmail,
+          timestamp: serverTimestamp()
+        })
+        .then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Noticia actualizada',
+            text: 'La noticia ha sido actualizada exitosamente.',
+            confirmButtonColor: '#4CAF50',
+          });
+          resetForm();
+          loadNews();
+        })
+        .catch((error) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message,
+            confirmButtonColor: '#d33',
+          });
         });
-        addNewsForm.reset();
-        quill.root.innerHTML = '';
-        bannerPreview.src = '';
-        bannerPreview.classList.add('hidden');
-        loadNews();
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.message,
-          confirmButtonColor: '#d33',
+      } else {
+        // Agregar nueva noticia
+        addDoc(collection(db, 'Noticias'), {
+          banner,
+          title,
+          info,
+          link,
+          adminId,
+          adminEmail,
+          timestamp: serverTimestamp()
+        })
+        .then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Noticia agregada',
+            text: 'La noticia ha sido agregada exitosamente.',
+            confirmButtonColor: '#4CAF50',
+          });
+          resetForm();
+          loadNews();
+        })
+        .catch((error) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message,
+            confirmButtonColor: '#d33',
+          });
         });
-      });
+      }
     });
   
     // Cargar noticias
@@ -250,54 +284,14 @@ const firebaseConfig = {
             document.getElementById('link').value = news.link;
             bannerPreview.src = news.banner;
             bannerPreview.classList.remove('hidden');
-            addNewsForm.onsubmit = (e) => {
-              e.preventDefault();
-              updateNews(id);
-            };
+            submitButton.textContent = 'Editar Noticia';
+            isEditing = true;
+            currentNewsId = id;
           }
         })
         .catch((error) => {
           console.error('Error al editar noticia: ', error);
         });
-    }
-  
-    // Actualizar noticia
-    window.updateNews = function(id) {
-      const banner = document.getElementById('banner').value;
-      const title = document.getElementById('title').value;
-      const info = quill.root.innerHTML;
-      const link = document.getElementById('link').value;
-  
-      const newsDoc = doc(db, 'Noticias', id);
-      updateDoc(newsDoc, {
-        banner,
-        title,
-        info,
-        link,
-        timestamp: serverTimestamp()
-      })
-      .then(() => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Noticia actualizada',
-          text: 'La noticia ha sido actualizada exitosamente.',
-          confirmButtonColor: '#4CAF50',
-        });
-        addNewsForm.reset();
-        quill.root.innerHTML = '';
-        bannerPreview.src = '';
-        bannerPreview.classList.add('hidden');
-        addNewsForm.onsubmit = addNewsFormSubmitHandler;
-        loadNews();
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.message,
-          confirmButtonColor: '#d33',
-        });
-      });
     }
   
     // Eliminar noticia
@@ -321,6 +315,17 @@ const firebaseConfig = {
             confirmButtonColor: '#d33',
           });
         });
+    }
+  
+    // Restablecer el formulario
+    function resetForm() {
+      addNewsForm.reset();
+      quill.root.innerHTML = '';
+      bannerPreview.src = '';
+      bannerPreview.classList.add('hidden');
+      submitButton.textContent = 'Publicar Noticia';
+      isEditing = false;
+      currentNewsId = null;
     }
   
     // Guardar el manejador original del formulario

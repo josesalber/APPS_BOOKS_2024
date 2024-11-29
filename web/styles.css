@@ -8,6 +8,7 @@ body {
     margin: 0;
     padding: 20px;
     box-sizing: border-box;
+    overflow: hidden; /* Evitar el desplazamiento */
   }
   
   .hidden {
@@ -30,6 +31,8 @@ body {
     width: 100%;
     max-width: 800px;
     box-sizing: border-box;
+    overflow-y: auto; /* Permitir el desplazamiento dentro del contenedor */
+    max-height: 90vh; /* Limitar la altura máxima del contenedor */
   }
   
   h1, h2 {
