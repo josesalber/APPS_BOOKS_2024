@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/CustomAppBar.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart';
+import 'package:flutter_application_1/src/pages/HomePage/tabs/libros.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/services/course_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -171,7 +172,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(height: 16.0),
+                      const SizedBox(height: 8.0),
                       news.isEmpty
                           ? const FadeInText(
                               text: '¡Muy pronto habrán noticias!',
@@ -291,6 +292,10 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                           ],
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Divider(color: Colors.white54),
+                      ),
                       SizedBox(
                         height: 200.0,
                         child: ListView.builder(
@@ -390,8 +395,11 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                               ),
                             ),
                             TextButton(
-                              onPressed: () {
-                                // Navegar a la página de todos los libros
+                               onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const LibrosPage()),
+                                );
                               },
                               child: const Text(
                                 'Ver todo',
@@ -403,6 +411,10 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                             ),
                           ],
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Divider(color: Colors.white54),
                       ),
                       SizedBox(
                         height: 200.0,
@@ -494,7 +506,7 @@ class _FadeInTextState extends State<FadeInText> with SingleTickerProviderStateM
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat(reverse: true); // Repite la animación de forma inversa
+    )..repeat(reverse: true); 
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
