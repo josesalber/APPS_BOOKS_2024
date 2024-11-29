@@ -13,6 +13,7 @@ import 'package:flutter_application_1/model/course.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/detalle_libro.dart';
 import 'package:flutter_application_1/services/annas_archive_api.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/DetalleNoticiaPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Principal extends StatefulWidget {
@@ -28,6 +29,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
   List<Course> latestCourses = [];
   List<Map<String, dynamic>> latestBooks = [];
   List<String> userPreferences = [];
+  List<Map<String, dynamic>> news = [];
   Timer? _timer;
   bool _isLoading = true;
 
@@ -46,6 +48,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
     _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
       fetchLatestContent();
     });
+    _fetchNews();
   }
 
   Future<void> _loadCachedContent() async {
@@ -105,6 +108,17 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
     }
   }
 
+  Future<void> _fetchNews() async {
+    try {
+      final newsSnapshot = await FirebaseFirestore.instance.collection('news').get();
+      setState(() {
+        news = newsSnapshot.docs.map((doc) => doc.data()).toList();
+      });
+    } catch (e) {
+      print('Error fetching news: $e');
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -121,6 +135,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
       body: RefreshIndicator(
         onRefresh: () async {
           await fetchLatestContent();
+          await _fetchNews();
         },
         child: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance.collection('users').doc(user?.uid).collection('user_data').doc('preferences').snapshots(),
@@ -155,14 +170,88 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                         ),
                       ),
                       const SizedBox(height: 16.0),
-                      FadeInText(
-                        text: '¡Muy pronto habrán noticias!',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      news.isEmpty
+                          ? const FadeInText(
+                              text: '¡Muy pronto habrán noticias!',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : SizedBox(
+                              height: 200.0,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: news.length,
+                                itemBuilder: (context, index) {
+                                  final item = news[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => DetalleNoticiaPage(
+                                            banner: item['banner'],
+                                            title: item['title'],
+                                            info: item['info'],
+                                            link: item['link'],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 300.0,
+                                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      child: Card(
+                                        color: Colors.blueAccent,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16.0),
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(16.0),
+                                              child: Image.network(
+                                                item['banner'],
+                                                height: 200,
+                                                width: double.infinity,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: 16.0,
+                                              left: 16.0,
+                                              right: 16.0,
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black54,
+                                                      borderRadius: BorderRadius.circular(8.0),
+                                                    ),
+                                                    child: Text(
+                                                      item['title'],
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
                       const SizedBox(height: 16.0),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),

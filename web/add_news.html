@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agregar Noticia</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="add_news.js" defer></script>
+</head>
+<body>
+  <div id="login-container" class="container">
+    <h1>Iniciar Sesión</h1>
+    <input type="email" id="email" placeholder="Correo Electrónico">
+    <input type="password" id="password" placeholder="Contraseña">
+    <button id="login-button">Iniciar Sesión</button>
+    <p id="login-error" class="error"></p>
+  </div>
+  <div id="add-news-container" class="container hidden">
+    <h1>Agregar Noticia</h1>
+    <form id="add-news-form">
+      <div class="form-group">
+        <label for="banner">URL del Banner</label>
+        <input type="text" id="banner" placeholder="URL del Banner" required>
+      </div>
+      <div class="form-group">
+        <label for="title">Título</label>
+        <input type="text" id="title" placeholder="Título" required>
+      </div>
+      <div class="form-group">
+        <label for="info">Información</label>
+        <textarea id="info" placeholder="Información" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="link">Enlace</label>
+        <input type="url" id="link" placeholder="Enlace" required>
+      </div>
+      <button type="submit">Agregar Noticia</button>
+    </form>
+    <p id="add-news-error" class="error"></p>
+    <p id="add-news-success" class="success"></p>
+  </div>
+</body>
+</html>
