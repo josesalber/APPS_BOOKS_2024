@@ -2,13 +2,13 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between; 
     align-items: center;
     height: 100vh;
     margin: 0;
     padding: 20px;
     box-sizing: border-box;
-    overflow: hidden; /* Evitar el desplazamiento */
   }
   
   .hidden {
@@ -31,13 +31,42 @@ body {
     width: 100%;
     max-width: 800px;
     box-sizing: border-box;
-    overflow-y: auto; /* Permitir el desplazamiento dentro del contenedor */
-    max-height: 90vh; /* Limitar la altura máxima del contenedor */
+    overflow-y: auto;
+    max-height: calc(100vh - 60px); /* Ajustar la altura máxima para dejar espacio para el footer */
   }
   
-  h1, h2 {
+  header {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  .logo-institucion {
+    width: 50px;
+    height: auto;
+  }
+  
+  .logo-fundacion {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+  }
+  
+  h1 {
     color: #4CAF50;
     text-align: center;
+    font-size: 2.5em;
+    margin: 0;
+  }
+  
+  h2 {
+    color: #4CAF50;
+    text-align: center;
+    font-size: 1.5em;
+    margin: 10px 0 20px;
   }
   
   .form-group {
@@ -124,4 +153,15 @@ body {
   
   #logout-button:hover {
     background-color: #b22;
+  }
+  
+  footer {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: #f4f4f4;
+    position: relative; /* Cambiado de absolute a relative */
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
   }

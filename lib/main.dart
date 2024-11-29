@@ -38,7 +38,7 @@ class ApprendeApp extends StatelessWidget {
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.light,
       home: const AuthWrapper(),
-      debugShowCheckedModeBanner: false, // Quitar el banner de depuración
+      debugShowCheckedModeBanner: false, 
     );
   }
 }
