@@ -28,4 +28,8 @@ class FortniteApi {
       throw Exception('Failed to load character images');
     }
   }
+
+  static String getImageUrl(String profileImageId) {
+    return 'https://fortnite-api.com/images/cosmetics/br/${profileImageId.toLowerCase()}/icon.png';
+  }
 }

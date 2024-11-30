@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:marquee/marquee.dart';
 
 class DetalleLibroPage extends StatelessWidget {
   final String title;
@@ -49,7 +50,22 @@ class DetalleLibroPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: SizedBox(
+          height: 30,
+          child: Marquee(
+            text: title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            scrollAxis: Axis.horizontal,
+            blankSpace: 20.0,
+            velocity: 30.0,
+            pauseAfterRound: const Duration(seconds: 1),
+            startPadding: 10.0,
+            accelerationDuration: const Duration(seconds: 1),
+            accelerationCurve: Curves.linear,
+            decelerationDuration: const Duration(milliseconds: 500),
+            decelerationCurve: Curves.easeOut,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -120,7 +136,6 @@ class DetalleLibroPage extends StatelessWidget {
                     throw 'Could not launch $url';
                   }
                 } else {
-                  // Manejar el caso en que no haya enlaces de descarga
                   print('No download links available');
                 }
               },

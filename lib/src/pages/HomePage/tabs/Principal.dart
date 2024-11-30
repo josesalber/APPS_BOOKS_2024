@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/CustomAppBar.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
+import 'package:flutter_application_1/src/pages/HomePage/tabs/libros.dart';
 import 'package:flutter_application_1/services/course_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,7 +10,9 @@ import 'package:flutter_application_1/model/course.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/detalle_libro.dart';
 import 'package:flutter_application_1/services/annas_archive_api.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/DetalleNoticiaPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class Principal extends StatefulWidget {
   const Principal({super.key});
@@ -28,6 +27,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
   List<Course> latestCourses = [];
   List<Map<String, dynamic>> latestBooks = [];
   List<String> userPreferences = [];
+  List<Map<String, dynamic>> news = [];
   Timer? _timer;
   bool _isLoading = true;
 
@@ -46,6 +46,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
     _timer = Timer.periodic(const Duration(minutes: 5), (timer) {
       fetchLatestContent();
     });
+    _fetchNews();
   }
 
   Future<void> _loadCachedContent() async {
@@ -105,6 +106,21 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
     }
   }
 
+  Future<void> _fetchNews() async {
+    try {
+      final newsSnapshot = await FirebaseFirestore.instance
+          .collection('Noticias')
+          .where('status', isEqualTo: 1) // Filtrar solo noticias activas
+          .orderBy('timestamp', descending: true)
+          .get();
+      setState(() {
+        news = newsSnapshot.docs.map((doc) => doc.data()).toList();
+      });
+    } catch (e) {
+      print('Error fetching news: $e');
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -121,6 +137,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
       body: RefreshIndicator(
         onRefresh: () async {
           await fetchLatestContent();
+          await _fetchNews();
         },
         child: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance.collection('users').doc(user?.uid).collection('user_data').doc('preferences').snapshots(),
@@ -154,15 +171,94 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(height: 16.0),
-                      FadeInText(
-                        text: '¡Muy pronto habrán noticias!',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      const SizedBox(height: 8.0),
+                      news.isEmpty
+                          ? const FadeInText(
+                              text: '¡Muy pronto habrán noticias!',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : CarouselSlider.builder(
+                              itemCount: news.length,
+                              itemBuilder: (context, index, realIndex) {
+                                final item = news[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetalleNoticiaPage(
+                                          banner: item['banner'],
+                                          title: item['title'],
+                                          info: item['info'],
+                                          link: item['link'],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Card(
+                                      color: Colors.blueAccent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16.0),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(16.0),
+                                            child: Image.network(
+                                              item['banner'],
+                                              height: 200,
+                                              width: double.infinity,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 16.0,
+                                            left: 16.0,
+                                            right: 16.0,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black54,
+                                                    borderRadius: BorderRadius.circular(8.0),
+                                                  ),
+                                                  child: Text(
+                                                    item['title'],
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              options: CarouselOptions(
+                                height: 200.0,
+                                enlargeCenterPage: true,
+                                autoPlay: true,
+                                aspectRatio: 16 / 9,
+                                autoPlayCurve: Curves.fastOutSlowIn,
+                                enableInfiniteScroll: true,
+                                autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                                viewportFraction: 0.8,
+                              ),
+                            ),
                       const SizedBox(height: 16.0),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -194,6 +290,10 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                             ),
                           ],
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Divider(color: Colors.white54),
                       ),
                       SizedBox(
                         height: 200.0,
@@ -295,7 +395,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                             ),
                             TextButton(
                               onPressed: () {
-                                // Navegar a la página de todos los libros
+                                DefaultTabController.of(context)?.animateTo(1); // Navegar a la pestaña de libros
                               },
                               child: const Text(
                                 'Ver todo',
@@ -307,6 +407,10 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                             ),
                           ],
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Divider(color: Colors.white54),
                       ),
                       SizedBox(
                         height: 200.0,

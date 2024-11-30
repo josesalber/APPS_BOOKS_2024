@@ -1,0 +1,172 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .error {
+    color: red;
+  }
+  
+  .success {
+    color: green;
+  }
+  
+  .container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-height: calc(100vh - 60px); /* Ajustar la altura máxima para dejar espacio para el footer */
+  }
+  
+  header {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  .logo-institucion {
+    width: 50px;
+    height: auto;
+  }
+  
+  .logo-fundacion {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+  }
+  
+  h1 {
+    color: #4CAF50;
+    text-align: center;
+    font-size: 2.5em;
+    margin: 0;
+  }
+  
+  h2 {
+    color: #4CAF50;
+    text-align: center;
+    font-size: 1.5em;
+    margin: 10px 0 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    margin-bottom: 5px;
+    color: #333;
+  }
+  
+  input, textarea, button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  input:focus, textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+  }
+  
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  #editor-container {
+    height: 200px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #fff;
+  }
+  
+  #banner-preview {
+    width: 100%;
+    max-height: 200px;
+    margin-top: 10px;
+    border-radius: 4px;
+  }
+  
+  .news-item {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+  }
+  
+  .news-item img {
+    width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  .news-item h3 {
+    margin-top: 0;
+  }
+  
+  .news-item button {
+    margin-right: 10px;
+  }
+  
+  #logout-button {
+    background-color: #d33;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+  }
+  
+  #logout-button:hover {
+    background-color: #b22;
+  }
+  
+  footer {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: #f4f4f4;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
+  }
+
+  /* noticias eliminadas */
+.deleted-news {
+  background-color: #ffcccc; 
+}
