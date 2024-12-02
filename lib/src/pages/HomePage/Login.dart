@@ -11,6 +11,8 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -23,10 +25,10 @@ class AuthScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            LoginTab(),
-            RegisterTab(),
+            LoginTab(emailController: emailController),
+            RegisterTab(emailController: emailController),
           ],
         ),
       ),
@@ -35,21 +37,22 @@ class AuthScreen extends StatelessWidget {
 }
 
 class LoginTab extends StatefulWidget {
-  const LoginTab({super.key});
+  final TextEditingController emailController;
+
+  const LoginTab({super.key, required this.emailController});
 
   @override
   _LoginTabState createState() => _LoginTabState();
 }
 
 class _LoginTabState extends State<LoginTab> {
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   Future<void> _signIn() async {
     try {
       final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text,
+        email: widget.emailController.text,
         password: _passwordController.text,
       );
 
@@ -146,7 +149,7 @@ class _LoginTabState extends State<LoginTab> {
           ),
           const SizedBox(height: 32),
           TextField(
-            controller: _emailController,
+            controller: widget.emailController,
             decoration: InputDecoration(
               labelText: 'Correo electrónico',
               border: OutlineInputBorder(
@@ -193,19 +196,20 @@ class _LoginTabState extends State<LoginTab> {
 }
 
 class RegisterTab extends StatefulWidget {
-  const RegisterTab({super.key});
+  final TextEditingController emailController;
+
+  const RegisterTab({super.key, required this.emailController});
 
   @override
   _RegisterTabState createState() => _RegisterTabState();
 }
 
 class _RegisterTabState extends State<RegisterTab> {
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   Future<void> _register() async {
-    final email = _emailController.text;
+    final email = widget.emailController.text;
     final password = _passwordController.text;
 
     if (!_isValidEmail(email)) {
@@ -230,13 +234,10 @@ class _RegisterTabState extends State<RegisterTab> {
         password: password,
       );
 
-      // Mover a la pestaña de "Inicia sesión" con el correo ya puesto
+      // Cambiar a la pestaña de inicio de sesión con el correo ya ingresado
+      widget.emailController.text = email;
+      _passwordController.clear();
       DefaultTabController.of(context)?.animateTo(0);
-      final loginTabState = context.findAncestorStateOfType<_LoginTabState>();
-      if (loginTabState != null) {
-        loginTabState._emailController.text = email;
-        loginTabState._passwordController.clear();
-      }
     } catch (e) {
       if (e is FirebaseAuthException) {
         switch (e.code) {
@@ -330,7 +331,7 @@ class _RegisterTabState extends State<RegisterTab> {
           ),
           const SizedBox(height: 32),
           TextField(
-            controller: _emailController,
+            controller: widget.emailController,
             decoration: InputDecoration(
               labelText: 'Correo electrónico',
               border: OutlineInputBorder(
