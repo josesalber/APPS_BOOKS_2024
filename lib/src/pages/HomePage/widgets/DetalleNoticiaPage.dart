@@ -38,70 +38,72 @@ class DetalleNoticiaPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Stack(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 80.0), 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.network(
-                  banner,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      width: double.infinity,
-                      color: Colors.grey,
-                      child: const Center(
-                        child: Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 50,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Html(
-                        data: info,
-                        style: {
-                          "body": Style(
-                            fontSize: FontSize(16.0),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 80.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.network(
+                    banner,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey,
+                        child: const Center(
+                          child: Icon(
+                            Icons.error,
+                            color: Colors.red,
+                            size: 50,
                           ),
-                        },
-                      ),
-                    ],
+                        ),
+                      );
+                    },
                   ),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Html(
+                          data: info,
+                          style: {
+                            "body": Style(
+                              fontSize: FontSize(16.0),
+                            ),
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.white.withOpacity(0), const Color(0xFF1c1a29)],
-                ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.white.withOpacity(0), const Color(0xFF1c1a29)],
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            child: SizedBox(
+              width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  if (await canLaunch(link)) {
-                    await launch(link);
+                  final Uri url = Uri.parse(link);
+                  if (await canLaunch(url.toString())) {
+                    await launch(url.toString());
                   } else {
                     throw 'Could not launch $link';
                   }
