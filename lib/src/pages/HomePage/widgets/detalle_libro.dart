@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -67,82 +69,110 @@ class DetalleLibroPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16.0),
-                    image: DecorationImage(
-                      image: NetworkImage(imageUrl),
-                      fit: BoxFit.contain,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isTablet = constraints.maxWidth >= 600;
+          final imageHeight = isTablet ? 300.0 : 200.0;
+          return Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(0.5),
+                      BlendMode.darken,
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: IconButton(
-                    icon: const Icon(Icons.bookmark_border, color: Colors.white),
-                    onPressed: _addToFavorites,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              title,
-              style: TextStyles.title,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Autor: $author',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Género: $genre',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Año: $year',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Formato: $format',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Tamaño: $size',
-              style: TextStyles.subtitle,
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                final downloadLinks = await AnnasArchiveApi.downloadBook(md5);
-                if (downloadLinks?.isNotEmpty ?? false) {
-                  final url = downloadLinks.first;
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
-                  }
-                } else {
-                  print('No download links available');
-                }
-              },
-              child: const Text('Descargar'),
-            ),
-          ],
-        ),
+              ),
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          height: imageHeight,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.0),
+                            image: DecorationImage(
+                              image: NetworkImage(imageUrl),
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: IconButton(
+                            icon: const Icon(Icons.bookmark_border, color: Colors.white),
+                            onPressed: _addToFavorites,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      title,
+                      style: TextStyles.title.copyWith(color: Colors.white),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'Autor: $author',
+                      style: TextStyles.subtitle.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'Género: $genre',
+                      style: TextStyles.subtitle.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'Año: $year',
+                      style: TextStyles.subtitle.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'Formato: $format',
+                      style: TextStyles.subtitle.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      'Tamaño: $size',
+                      style: TextStyles.subtitle.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final downloadLinks = await AnnasArchiveApi.downloadBook(md5);
+                        if (downloadLinks?.isNotEmpty ?? false) {
+                          final url = downloadLinks.first;
+                          if (await canLaunch(url)) {
+                            await launch(url);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        } else {
+                          print('No download links available');
+                        }
+                      },
+                      child: const Text('Descargar'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
