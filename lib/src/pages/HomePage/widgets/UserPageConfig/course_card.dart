@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/model/course.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/app_styles.dart';
+import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart'; // Importa CourseDetailPage
 
 class CourseCard extends StatelessWidget {
   final Course course;
@@ -10,33 +11,55 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: AppStyles.containerMargin,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        elevation: 5,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildCourseImage(course),
-            Padding(
-              padding: AppStyles.courseCardPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCourseTitle(course),
-                  const SizedBox(height: 5),
-                  _buildCourseInfoRow(course),
-                  const SizedBox(height: 5),
-                  _buildCourseAuthor(course),
-                  const SizedBox(height: 5),
-                  _buildCourseCategory(course),
-                ],
-              ),
+    final daysLeft = course.getExpiryTime();
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailPage(course: course),
+          ),
+        );
+      },
+      child: Padding(
+        padding: AppStyles.containerMargin,
+        child: Container(
+          constraints: const BoxConstraints(
+            minWidth: 200,
+            maxWidth: 400,
+          ),
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
             ),
-          ],
+            elevation: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildCourseImage(course),
+                Padding(
+                  padding: AppStyles.courseCardPadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildCourseTitle(course),
+                      const SizedBox(height: 5),
+                      _buildCourseInfoRow(course),
+                      const SizedBox(height: 5),
+                      _buildCourseAuthor(course),
+                      const SizedBox(height: 5),
+                      _buildCourseCategory(course),
+                      if (daysLeft.isNotEmpty)
+                        Text(
+                          daysLeft,
+                          style: const TextStyle(fontSize: 14, color: Colors.redAccent),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

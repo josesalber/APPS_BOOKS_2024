@@ -132,6 +132,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
   Widget build(BuildContext context) {
     super.build(context); // Necesario para AutomaticKeepAliveClientMixin
     final user = FirebaseAuth.instance.currentUser;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -249,14 +250,14 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                                 );
                               },
                               options: CarouselOptions(
-                                height: 200.0,
+                                height: screenWidth < 600 ? 200.0 : 300.0,
                                 enlargeCenterPage: true,
                                 autoPlay: true,
-                                aspectRatio: 16 / 9,
+                                aspectRatio: screenWidth < 600 ? 16 / 9 : 4 / 3,
                                 autoPlayCurve: Curves.fastOutSlowIn,
                                 enableInfiniteScroll: true,
                                 autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                                viewportFraction: 0.8,
+                                viewportFraction: screenWidth < 600 ? 0.8 : 0.6,
                               ),
                             ),
                       const SizedBox(height: 16.0),

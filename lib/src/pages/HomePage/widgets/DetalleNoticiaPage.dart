@@ -19,6 +19,10 @@ class DetalleNoticiaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final imageHeight = screenWidth < 600 ? screenHeight * 0.3 : screenHeight * 0.5;
+
     return Scaffold(
       appBar: AppBar(
         title: SizedBox(
@@ -49,12 +53,12 @@ class DetalleNoticiaPage extends StatelessWidget {
                 children: [
                   Image.network(
                     banner,
-                    height: 200,
+                    height: imageHeight,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        height: 200,
+                        height: imageHeight,
                         width: double.infinity,
                         color: Colors.grey,
                         child: const Center(
