@@ -67,6 +67,7 @@ flutter:
   assets:
     - assets/user_image.png
     - assets/app_icon.png
+    - assets/Icons/courses_icon.png
    # - assets/Icons/online_course_logo.jpg
     #- assets/Icons/udemy_logo.jpg
 

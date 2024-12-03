@@ -54,10 +54,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      [Icons.home, Icons.book, Icons.new_releases][index],
-                      size: 24,
-                    ),
+                    if (index == 2)
+                      ImageIcon(
+                        AssetImage('assets/Icons/courses_icon.png'),
+                        size: 24,
+                        color: isSelected ? Colors.white : Colors.white54,
+                      )
+                    else
+                      Icon(
+                        [Icons.home, Icons.book, Icons.new_releases][index],
+                        size: 24,
+                        color: isSelected ? Colors.white : Colors.white54,
+                      ),
                     if (isSelected) ...[
                       const SizedBox(width: 8),
                       Text(
