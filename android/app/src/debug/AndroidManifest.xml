@@ -1,9 +1,78 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.gatorrancia.apprendeplus">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- The INTERNET permission is required for development. Specifically,
-         the Flutter tool needs it to communicate with the running application
-         to allow setting breakpoints, to provide hot reload, etc.
-    -->
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Permiso para acceso a Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Proveer configuración de visibilidad requerida para API nivel 30 y superior -->
+    <queries>
+        <!-- Si tu aplicación verifica soporte para SMS -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="sms" />
+        </intent>
+        <!-- Si tu aplicación verifica soporte para llamadas -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+        <!-- Si tu aplicación verifica soporte para el modo de lanzamiento inAppBrowserView -->
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+        <!-- Si tu aplicación verifica soporte para abrir URLs en el navegador -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="Apprende+"
+        android:icon="@mipmap/ic_launcher"
+        tools:replace="android:label"
+        android:name="${applicationName}">
+        
+        <!-- Configuración de la actividad principal -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- Tema normal para Flutter -->
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <!-- Intent Filter para iniciar la aplicación -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Intent Filter para manejar enlaces HTTP/HTTPS -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+        </activity>
+
+        <!-- Metadata para Flutter -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
 </manifest>

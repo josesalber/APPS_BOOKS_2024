@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,6 +44,15 @@ class DetalleLibroPage extends StatelessWidget {
         'format': format,
         'md5': md5,
       });
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -156,11 +164,7 @@ class DetalleLibroPage extends StatelessWidget {
                         final downloadLinks = await AnnasArchiveApi.downloadBook(md5);
                         if (downloadLinks?.isNotEmpty ?? false) {
                           final url = downloadLinks.first;
-                          if (await canLaunch(url)) {
-                            await launch(url);
-                          } else {
-                            throw 'Could not launch $url';
-                          }
+                          await _launchUrl(url);
                         } else {
                           print('No download links available');
                         }
