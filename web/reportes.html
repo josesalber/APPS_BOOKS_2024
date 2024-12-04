@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes APPrende+</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="reportes.js" defer></script>
+</head>
+<body>
+  <header>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBFr1CNyxdZF3c5Sk91EST5Q-zURZtMMsHow&s" alt="Logo Institución" class="logo-institucion">
+  </header>
+  <nav>
+    <ul>
+      <li><a href="index.html">Noticias</a></li>
+      <li><a href="reportes.html">Reportes</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <h1>Generar Reporte</h1>
+    <button id="generate-report-button">Generar Reporte</button>
+    <div id="report-content" class="hidden">
+      <h2>Reporte de Administración</h2>
+      <p id="report-date"></p>
+      <div id="report-stats"></div>
+      <canvas id="report-chart"></canvas>
+    </div>
+  </div>
+  <footer>
+    <p>Proyecto para el curso "Integrador II: Software (1S12F)", desarrollado por el alumno Diego Alonso Miñano y Jose Salirrosas, periodo 2024 - 2. Profesor: Robalino Gomez, Hernan.</p>
+  </footer>
+</body>
+</html>
