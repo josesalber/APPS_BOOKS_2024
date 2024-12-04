@@ -86,7 +86,7 @@ class BookList extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.bookmark_border, color: Colors.white),
                   onPressed: () {
-                    addToFavorites(libro);
+                    addToFavorites(context, libro);
                   },
                 ),
               ],

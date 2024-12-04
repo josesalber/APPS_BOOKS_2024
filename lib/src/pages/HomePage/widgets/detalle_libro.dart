@@ -107,7 +107,7 @@ class DetalleLibroPage extends StatelessWidget {
                           child: IconButton(
                             icon: const Icon(Icons.bookmark_border, color: Colors.white),
                             onPressed: () {
-                              addToFavorites({
+                              addToFavorites(context, {
                                 'title': title,
                                 'author': author,
                                 'imgUrl': imageUrl,
