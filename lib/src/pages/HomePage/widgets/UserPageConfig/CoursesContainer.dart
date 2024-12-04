@@ -99,7 +99,10 @@ class CoursesContainer extends StatelessWidget {
                             ),
                           );
                         },
-                        child: CourseCard(course: course),
+                        child: Container(
+                          width: double.infinity,
+                          child: CourseCard(course: course),
+                        ),
                       ),
                     );
                   },

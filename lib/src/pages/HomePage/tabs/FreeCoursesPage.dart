@@ -6,6 +6,8 @@ import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_p
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/app_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/course_card.dart'; // Import CourseCard
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class FreeCoursesPage extends StatefulWidget {
   const FreeCoursesPage({super.key});
@@ -21,11 +23,13 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
   String selectedCategory = "All";
   List<String> categories = ["All"];
   String searchQuery = "";
+  String? imageUrl;
 
   @override
   void initState() {
     super.initState();
     fetchCourses();
+    fetchRandomImage();
   }
 
   Future<void> fetchCourses() async {
@@ -40,6 +44,15 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
       });
     } catch (e) {
       throw Exception('Fallo en carga de cursos');
+    }
+  }
+
+  Future<void> fetchRandomImage() async {
+    final response = await http.get(Uri.parse('https://source.unsplash.com/random/800x600'));
+    if (response.statusCode == 200) {
+      setState(() {
+        imageUrl = response.request!.url.toString();
+      });
     }
   }
 
@@ -76,7 +89,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
       body: RefreshIndicator(
         onRefresh: fetchCourses,
         child: filteredCourses.isEmpty
-            ? const Center(child: CircularProgressIndicator())
+            ? _buildEmptyState()
             : LayoutBuilder(
                 builder: (context, constraints) {
                   if (constraints.maxWidth < 600) {
@@ -184,6 +197,31 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (imageUrl != null)
+            Image.network(
+              imageUrl!,
+              height: 150,
+            ),
+          const SizedBox(height: 20),
+          const Text(
+            '¡El curso que buscas no está de oferta!',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Regresa pronto para ver las nuevas ofertas.',
+            style: TextStyle(fontSize: 16),
           ),
         ],
       ),
