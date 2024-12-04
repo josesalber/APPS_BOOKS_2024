@@ -3,20 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/detalle_libro.dart';
+import '../widgets/UserPageConfig/favorites.dart';
 
 class BookList extends StatelessWidget {
   final List<dynamic> libros;
 
   const BookList({super.key, required this.libros});
-
-  Future<void> _addToFavorites(Map<String, dynamic> libro) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
-      final favoritesCollection = userDoc.collection('favorites');
-      await favoritesCollection.doc(libro['md5']).set(libro);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +86,7 @@ class BookList extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.bookmark_border, color: Colors.white),
                   onPressed: () {
-                    _addToFavorites(libro);
+                    addToFavorites(libro);
                   },
                 ),
               ],

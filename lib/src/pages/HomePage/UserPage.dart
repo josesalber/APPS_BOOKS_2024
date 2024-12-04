@@ -134,14 +134,14 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
-  Future<void> _removeFromFavorites(String title) async {
+  Future<void> _removeFromFavorites(String md5) async {
     if (user != null) {
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user!.uid);
-      final coursesCollection = userDoc.collection('courses');
-      await coursesCollection.doc(title).delete();
+      final favoritesCollection = userDoc.collection('favorites');
+      await favoritesCollection.doc(md5).delete();
       setState(() {
-        favoriteCourses.removeWhere((course) => course.title == title);
-        filteredCourses.removeWhere((course) => course.title == title);
+        favoriteBooks.removeWhere((book) => book['md5'] == md5);
+        _filteredBooks.removeWhere((book) => book['md5'] == md5);
       });
     }
   }

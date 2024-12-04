@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'BookCard.dart';
 
-class LibraryContainer extends StatelessWidget {
+class LibraryContainer extends StatefulWidget {
   final bool isSearching;
   final TextEditingController searchController;
   final Function(String) onSearch;
@@ -17,6 +17,11 @@ class LibraryContainer extends StatelessWidget {
     required this.onRemove,
   });
 
+  @override
+  _LibraryContainerState createState() => _LibraryContainerState();
+}
+
+class _LibraryContainerState extends State<LibraryContainer> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -41,18 +46,18 @@ class LibraryContainer extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(isSearching ? Icons.close : Icons.search, color: Colors.white),
+                    icon: Icon(widget.isSearching ? Icons.close : Icons.search, color: Colors.white),
                     onPressed: () {
-                      onSearch('');
+                      widget.onSearch('');
                     },
                   ),
                 ],
               ),
-              if (isSearching)
+              if (widget.isSearching)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: TextField(
-                    controller: searchController,
+                    controller: widget.searchController,
                     decoration: InputDecoration(
                       hintText: 'Buscar libros...',
                       hintStyle: const TextStyle(color: Colors.white70),
@@ -65,18 +70,34 @@ class LibraryContainer extends StatelessWidget {
                       prefixIcon: const Icon(Icons.search, color: Colors.white),
                     ),
                     style: const TextStyle(color: Colors.white),
-                    onChanged: onSearch,
+                    onChanged: widget.onSearch,
                   ),
                 ),
               const SizedBox(height: 16.0),
               Expanded(
                 child: ListView.builder(
-                  itemCount: filteredBooks.length,
+                  itemCount: widget.filteredBooks.length,
                   itemBuilder: (context, index) {
-                    final book = filteredBooks[index];
-                    return BookCard(
-                      book: book,
-                      onRemove: onRemove,
+                    final book = widget.filteredBooks[index];
+                    return Dismissible(
+                      key: Key(book['md5']),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        color: Colors.red,
+                        child: const Icon(Icons.delete, color: Colors.white, size: 32),
+                      ),
+                      onDismissed: (direction) async {
+                        await widget.onRemove(book['md5']);
+                        setState(() {
+                          widget.filteredBooks.removeAt(index); // Eliminar el libro de la lista inmediatamente
+                        });
+                      },
+                      child: BookCard(
+                        book: book,
+                        onRemove: widget.onRemove,
+                      ),
                     );
                   },
                 ),

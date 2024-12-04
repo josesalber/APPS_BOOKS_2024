@@ -6,6 +6,7 @@ import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dar
 import 'package:flutter_application_1/services/annas_archive_api.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:marquee/marquee.dart';
+import '../widgets/UserPageConfig/favorites.dart';
 
 class DetalleLibroPage extends StatelessWidget {
   final String title;
@@ -28,24 +29,6 @@ class DetalleLibroPage extends StatelessWidget {
     required this.format,
     required this.md5,
   });
-
-  Future<void> _addToFavorites() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
-      final favoritesCollection = userDoc.collection('favorites');
-      await favoritesCollection.doc(md5).set({
-        'title': title,
-        'author': author,
-        'imageUrl': imageUrl,
-        'size': size,
-        'genre': genre,
-        'year': year,
-        'format': format,
-        'md5': md5,
-      });
-    }
-  }
 
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
@@ -123,7 +106,18 @@ class DetalleLibroPage extends StatelessWidget {
                           right: 10,
                           child: IconButton(
                             icon: const Icon(Icons.bookmark_border, color: Colors.white),
-                            onPressed: _addToFavorites,
+                            onPressed: () {
+                              addToFavorites({
+                                'title': title,
+                                'author': author,
+                                'imgUrl': imageUrl,
+                                'size': size,
+                                'genre': genre,
+                                'year': year,
+                                'format': format,
+                                'md5': md5,
+                              });
+                            },
                           ),
                         ),
                       ],
