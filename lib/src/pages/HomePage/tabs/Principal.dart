@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/src/pages/HomePage/tabs/FreeCoursesPage.dart';
-import 'package:flutter_application_1/src/pages/HomePage/tabs/libros.dart';
 import 'package:flutter_application_1/services/course_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -87,7 +86,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
 
       final books = await AnnasArchiveApi.searchBooks('');
       books.shuffle();
-      final filteredBooks = books.take(12).toList(); // Tomar 12 libros para dividir en dos filas
+      final filteredBooks = books.take(12).toList();
 
       setState(() {
         latestCourses = filteredCourses.take(6).toList();
@@ -110,7 +109,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
     try {
       final newsSnapshot = await FirebaseFirestore.instance
           .collection('Noticias')
-          .where('status', isEqualTo: 1) // Filtrar solo noticias activas
+          .where('status', isEqualTo: 1) 
           .orderBy('timestamp', descending: true)
           .get();
       setState(() {
@@ -130,7 +129,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Necesario para AutomaticKeepAliveClientMixin
+    super.build(context); 
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -167,7 +166,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                           const Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text(
-                              'Anuncios',
+                              '📢 Anuncios',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24.0,
@@ -271,7 +270,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Últimos cursos',
+                                  '📚 Últimos Cursos',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 24.0,
@@ -391,7 +390,7 @@ class _PrincipalState extends State<Principal> with AutomaticKeepAliveClientMixi
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Últimos libros',
+                                  '📖 Últimos Libros',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 24.0,
@@ -570,7 +569,7 @@ class _FadeInTextState extends State<FadeInText> with SingleTickerProviderStateM
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat(reverse: true); // Repite la animación de forma inversa
+    )..repeat(reverse: true); 
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,

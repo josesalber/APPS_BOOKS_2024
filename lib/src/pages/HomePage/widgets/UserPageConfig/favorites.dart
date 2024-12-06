@@ -10,14 +10,12 @@ Future<void> addToFavorites(BuildContext context, Map<String, dynamic> book) asy
     final docSnapshot = await favoritesCollection.doc(book['md5']).get();
 
     if (docSnapshot.exists) {
-      // Mostrar SnackBar si el libro ya está en favoritos
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Este libro ya está en favoritos'),
         ),
       );
     } else {
-      // Agregar el libro a favoritos
       await favoritesCollection.doc(book['md5']).set({
         'title': book['title'] ?? '',
         'author': book['author'] ?? '',
@@ -29,7 +27,6 @@ Future<void> addToFavorites(BuildContext context, Map<String, dynamic> book) asy
         'md5': book['md5'] ?? '',
       });
 
-      // Mostrar SnackBar si el libro se ha agregado a favoritos
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Libro agregado a favoritos'),

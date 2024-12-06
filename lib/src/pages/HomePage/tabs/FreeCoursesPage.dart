@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_application_1/services/course_service.dart';
 import 'package:flutter_application_1/model/course.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/app_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/course_card.dart'; // Import CourseCard
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class FreeCoursesPage extends StatefulWidget {
   const FreeCoursesPage({super.key});
@@ -24,6 +22,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
   List<String> categories = ["All"];
   String searchQuery = "";
   String? imageUrl;
+  bool hasSearched = false; 
 
   @override
   void initState() {
@@ -73,6 +72,14 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
     });
   }
 
+  void _clearSearch() {
+    setState(() {
+      searchQuery = "";
+      hasSearched = false;    
+      _filterCourses();
+    });
+  }
+
   Future<void> _launchUrl(String url) async {
     final Uri courseUrl = Uri.parse(url);
     if (await canLaunchUrl(courseUrl)) {
@@ -89,7 +96,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
       body: RefreshIndicator(
         onRefresh: fetchCourses,
         child: filteredCourses.isEmpty
-            ? _buildEmptyState()
+            ? (hasSearched ? _buildEmptyState() : const Center(child: CircularProgressIndicator()))
             : LayoutBuilder(
                 builder: (context, constraints) {
                   if (constraints.maxWidth < 600) {
@@ -110,7 +117,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
                       itemCount: filteredCourses.length,
                       itemBuilder: (context, index) {
                         final course = filteredCourses[index];
-                        return CourseCard(course: course); // Usa CourseCard
+                        return CourseCard(course: course); 
                       },
                     );
                   }
@@ -129,7 +136,7 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
           child: Column(
             children: [
               const Text(
-                'Cursos gratuitos 9.0',
+                '🎓 Cursos Gratuitos 🎉',
                 style: TextStyles.title,
               ),
               const SizedBox(height: 10),
@@ -157,8 +164,11 @@ class _FreeCoursesPageState extends State<FreeCoursesPage> {
         suffixIcon: const Icon(Icons.search, color: Colors.white),
       ),
       onChanged: (value) {
-        searchQuery = value;
-        _filterCourses();
+        setState(() {
+          searchQuery = value;
+          hasSearched = true; 
+          _filterCourses();
+        });
       },
     );
   }

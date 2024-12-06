@@ -91,7 +91,7 @@ class _LibraryContainerState extends State<LibraryContainer> {
                       onDismissed: (direction) async {
                         await widget.onRemove(book['md5']);
                         setState(() {
-                          widget.filteredBooks.removeAt(index); // Eliminar el libro de la lista inmediatamente
+                          widget.filteredBooks.removeAt(index);
                         });
                       },
                       child: BookCard(

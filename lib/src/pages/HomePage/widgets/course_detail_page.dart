@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/model/course.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; // Importa el archivo de estilos
-import 'package:flutter_application_1/src/pages/HomePage/widgets/course_info_row.dart'; // Importa el nuevo widget
+import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart'; 
+import 'package:flutter_application_1/src/pages/HomePage/widgets/course_info_row.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:marquee/marquee.dart';
@@ -41,7 +41,7 @@ class CourseDetailPage extends StatelessWidget {
           return Stack(
             children: [
               SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 80.0), // Espacio para el botón
+                padding: const EdgeInsets.only(bottom: 80.0), 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -199,7 +199,7 @@ class CourseDetailPage extends StatelessWidget {
                           CourseInfoRow(course: course),
                           const SizedBox(height: 10),
                           Html(
-                            data: course.description, // Convierte HTML a texto legible
+                            data: course.description, 
                             style: {
                               "body": Style.fromTextStyle(TextStyles.bodyText),
                             },

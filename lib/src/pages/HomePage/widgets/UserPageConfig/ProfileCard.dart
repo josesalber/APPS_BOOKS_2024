@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../text_styles.dart';
 
 class ProfileCard extends StatelessWidget {
   final String? firstName;
@@ -7,7 +6,7 @@ class ProfileCard extends StatelessWidget {
   final String? university;
   final String? email;
   final String? role;
-  final String? profileImageUrl; // URL de la imagen de perfil
+  final String? profileImageUrl; 
 
   const ProfileCard({
     super.key,
@@ -48,7 +47,7 @@ class ProfileCard extends StatelessWidget {
                           '$firstName $lastName',
                           style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        if (role == 'admin') // Mostrar el listón rojo si el rol es 'admin'
+                        if (role == 'admin') 
                           Container(
                             margin: const EdgeInsets.only(left: 8.0),
                             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),

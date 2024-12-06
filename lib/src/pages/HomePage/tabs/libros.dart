@@ -181,7 +181,7 @@ class _LibrosPageState extends State<LibrosPage> {
           child: Column(
             children: [
               const Text(
-                'Libros gratuitos',
+                '📚 Libros Gratuitos 📖',
                 style: TextStyles.title,
               ),
               const SizedBox(height: 10),

@@ -308,7 +308,7 @@ class _UserManagementState extends State<UserManagement> {
                   ? FortniteApi.getImageUrl(user.profileImageId!)
                   : 'assets/user_image.png';
               return Card(
-                color: user.status == 0 ? Colors.red : null, // Color rojo para usuarios inactivos
+                color: user.status == 0 ? Colors.red : null, 
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
                   leading: CircleAvatar(
@@ -321,7 +321,7 @@ class _UserManagementState extends State<UserManagement> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(user.email, style: TextStyles.bodyText), // Mostrar el correo del usuario
+                      Text(user.email, style: TextStyles.bodyText), 
                       Text('UID: ${user.uid}', style: TextStyles.bodyText),
                       Text('Banned: ${user.banned}', style: TextStyles.bodyText),
                       if (user.banned && user.banEndDate != null)
@@ -344,7 +344,7 @@ class _UserManagementState extends State<UserManagement> {
                           _updateUserRole(user.uid, user.role == 'admin' ? 'user' : 'admin');
                           break;
                         case 'restrict':
-                          _restrictUser(user.uid, 7); // Restringir por 7 días
+                          _restrictUser(user.uid, 7); //ban de 7 dias
                           break;
                         case 'unrestrict':
                           _unrestrictUser(user.uid);

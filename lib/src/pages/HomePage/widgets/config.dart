@@ -5,7 +5,6 @@ import 'package:flutter_application_1/src/pages/HomePage/Login.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/ProfileCard.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/UserPageConfig/admin_settings_page.dart';
 import 'package:flutter_application_1/services/fortnite_api.dart';
-import 'text_styles.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -92,8 +91,8 @@ class _ConfigPageState extends State<ConfigPage> {
         _ageController.text = data['age']?.toString() ?? '';
         _institutionType = data['institutionType'] ?? 'colegio';
         _university = data['university'];
-        _role = data['role'] ?? 'user'; // Obtener el rol del usuario
-        _profileImageId = data['profileImageId']; // Obtener la ID de la imagen de perfil
+        _role = data['role'] ?? 'user'; 
+        _profileImageId = data['profileImageId']; 
         setState(() {});
       }
 
@@ -113,25 +112,24 @@ class _ConfigPageState extends State<ConfigPage> {
       if (user != null) {
         final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
 
-        // Guardar datos personales en la colección 'users'
+        // colección 'users'
         await userDoc.set({
           'firstName': _firstNameController.text,
           'lastName': _lastNameController.text,
           'age': int.tryParse(_ageController.text),
           'institutionType': _institutionType,
           'university': _university,
-          'role': _role, // Guardar el rol del usuario
-          'profileImageId': _profileImageId, // Guardar la ID de la imagen de perfil
-          'status': 1, // Establecer el estado como activo por defecto
+          'role': _role, 
+          'profileImageId': _profileImageId, 
+          'status': 1, // Eliminado logico, 1 = activo; 0 = inactivo
         });
 
-        // Guardar preferencias en la subcolección 'user_data/preferences'
+        // Subcolección 'user_data/preferences'
         await userDoc.collection('user_data').doc('preferences').set({
           'coursePreferences': _coursePreferences,
           'bookPreferences': _bookPreferences,
         });
 
-        // Mostrar SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Datos guardados!')),
         );
@@ -162,7 +160,7 @@ class _ConfigPageState extends State<ConfigPage> {
 
     try {
       final images = await FortniteApi.fetchCharacterImages();
-      Navigator.of(context).pop(); // Cerrar el indicador de carga
+      Navigator.of(context).pop(); 
       showDialog(
         context: context,
         builder: (context) {
@@ -197,7 +195,7 @@ class _ConfigPageState extends State<ConfigPage> {
         },
       );
     } catch (e) {
-      Navigator.of(context).pop(); // Cerrar el indicador de carga en caso de error
+      Navigator.of(context).pop(); 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al cargar imágenes: $e')),
       );
@@ -221,16 +219,16 @@ class _ConfigPageState extends State<ConfigPage> {
                 lastName: _lastNameController.text,
                 university: _university,
                 email: FirebaseAuth.instance.currentUser?.email,
-                role: _role, // Pasar el rol del usuario
+                role: _role, 
                 profileImageUrl: _profileImageId != null
                     ? 'https://fortnite-api.com/images/cosmetics/br/${_profileImageId!.toLowerCase()}/icon.png'
-                    : null, // Pasar la URL de la imagen de perfil
+                    : null, 
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _selectProfileImage,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Color del texto
+                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, 
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
                   ),
@@ -316,8 +314,8 @@ class _ConfigPageState extends State<ConfigPage> {
                     }
                   });
                 },
-                style: const TextStyle(color: Colors.white), // Cambia el color del texto seleccionado a blanco
-                dropdownColor: Colors.black, // Cambia el color de fondo del menú desplegable
+                style: const TextStyle(color: Colors.white),
+                dropdownColor: Colors.black, 
               ),
               if (_institutionType == 'universitario')
                 const SizedBox(height: 16.0),
@@ -342,8 +340,8 @@ class _ConfigPageState extends State<ConfigPage> {
                       _university = value;
                     });
                   },
-                  style: const TextStyle(color: Colors.white), // Cambia el color del texto seleccionado a blanco
-                  dropdownColor: Colors.black, // Cambia el color de fondo del menú desplegable
+                  style: const TextStyle(color: Colors.white), 
+                  dropdownColor: Colors.black, 
                 ),
               const SizedBox(height: 16.0),
               const Text('Preferencias de Cursos', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -405,7 +403,7 @@ class _ConfigPageState extends State<ConfigPage> {
               ElevatedButton(
                 onPressed: _saveUserData,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Color del texto
+                  foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, 
                   padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
@@ -423,7 +421,7 @@ class _ConfigPageState extends State<ConfigPage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, // Color del texto
+                    foregroundColor: Colors.white, backgroundColor: Colors.deepPurple, 
                     padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),
@@ -435,7 +433,7 @@ class _ConfigPageState extends State<ConfigPage> {
               ElevatedButton(
                 onPressed: _signOut,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.red, // Color del texto
+                  foregroundColor: Colors.white, backgroundColor: Colors.red, 
                   padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),

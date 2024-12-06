@@ -93,7 +93,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
           icon: const Icon(Icons.notifications),
           color: Colors.white,
           onPressed: () {
-            // hacer un widget de notificaciones waaa
+            // por implementar.
           },
         )
       ],

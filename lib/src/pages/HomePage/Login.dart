@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'HomePage.dart';
-import 'UserPage.dart';
-import 'widgets/text_styles.dart';
+
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -234,7 +233,6 @@ class _RegisterTabState extends State<RegisterTab> {
         password: password,
       );
 
-      // Cambiar a la pestaña de inicio de sesión con el correo ya ingresado
       widget.emailController.text = email;
       _passwordController.clear();
       DefaultTabController.of(context)?.animateTo(0);

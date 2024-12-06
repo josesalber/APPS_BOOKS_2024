@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppStyles {
   static const BoxDecoration containerDecoration = BoxDecoration(
-    color: Colors.white, // Asegúrate de que el color sea blanco
+    color: Colors.white, 
     borderRadius: BorderRadius.all(Radius.circular(16.0)),
     boxShadow: [
       BoxShadow(
@@ -29,7 +29,7 @@ class AppStyles {
   );
 
   static const BoxDecoration courseCardDecoration = BoxDecoration(
-    color: Colors.white, // Asegúrate de que el color sea blanco
+    color: Colors.white, 
     borderRadius: BorderRadius.all(Radius.circular(15.0)),
     boxShadow: [
       BoxShadow(

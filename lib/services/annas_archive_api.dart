@@ -5,7 +5,6 @@ class AnnasArchiveApi {
   static const String apiKey = '620d182c88msh7a8dedf0e4fc110p11774ejsnab3c124264e8';
   static const String apiHost = 'annas-archive-api.p.rapidapi.com';
 
-  // Caché en memoria para almacenar los resultados de las solicitudes
   static final Map<String, List<dynamic>> _cache = {};
 
   static Future<List<dynamic>> searchBooks(String query, {String category = 'all'}) async {
@@ -14,7 +13,6 @@ class AnnasArchiveApi {
     }
     final cacheKey = '$query-$category';
     
-    // Verificar si los datos están en el caché
     if (_cache.containsKey(cacheKey)) {
       return _cache[cacheKey]!;
     }

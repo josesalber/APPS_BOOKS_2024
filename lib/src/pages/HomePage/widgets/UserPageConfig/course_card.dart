@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/model/course.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/text_styles.dart';
 import 'package:flutter_application_1/src/pages/HomePage/widgets/app_styles.dart';
-import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart'; // Importa CourseDetailPage
+import 'package:flutter_application_1/src/pages/HomePage/widgets/course_detail_page.dart'; 
 
 class CourseCard extends StatelessWidget {
   final Course course;
